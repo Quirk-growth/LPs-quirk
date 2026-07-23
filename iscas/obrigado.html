@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tá liberado! | Quirk Growth</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+
+  <!-- ====== META PIXEL ====== -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '905158130958739');
+    fbq('track', 'PageView');
+    fbq('track', 'CompleteRegistration', { content_name: 'iscas_kpi_gpa' });
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=905158130958739&ev=CompleteRegistration&noscript=1"/></noscript>
+
+  <!-- ====== GOOGLE ANALYTICS 4 ====== -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+    gtag('event', 'conversion', { event_category: 'lead', event_label: 'iscas_kpi_gpa' });
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo-link">
+        <img src="assets/img/logo-quirk.png" alt="Quirk Growth" class="logo" onerror="this.style.display='none'; this.parentNode.querySelector('.logo-fallback').style.display='inline-block';">
+        <span class="logo-fallback" style="display:none;">QuirkGrowth</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="thanks">
+    <div class="thanks-card">
+      <div class="thanks-icon">🎉</div>
+      <h1 id="thanks-headline">Acesso liberado, <span id="lead-nome">corretor(a)</span>!</h1>
+      <p>Seu presente já está aqui embaixo. <strong>Também enviei pro seu email</strong> (<span id="lead-email">o que você cadastrou</span>) — confere caixa de entrada e a aba "Promoções" se demorar.</p>
+
+      <div class="download-grid">
+        <!-- TODO: substituir URLs de download -->
+        <a class="download-btn" href="https://drive.google.com/uc?export=download&id=1SlOHXIyFjECKPqhuIuqo7L15flsuP7tt" target="_blank" rel="noopener" id="btn-planilha">
+          <span class="download-btn-icon">📊</span>
+          <span class="download-btn-label">Planilha de KPIs</span>
+          <span class="download-btn-sub">Baixar (.xlsx)</span>
+        </a>
+        <a class="download-btn" href="https://drive.google.com/uc?export=download&id=18OOwRd8jl76_f4qeJQkRv803ZBa0DuAi" target="_blank" rel="noopener" id="btn-gpa">
+          <span class="download-btn-icon">📘</span>
+          <span class="download-btn-label">GPA — Guia</span>
+          <span class="download-btn-sub">Baixar (.pdf)</span>
+        </a>
+      </div>
+
+      <div class="thanks-footer">
+        <p><strong>Próximo passo:</strong> roda a planilha com teus números reais. Em alguns dias eu te chamo pra ver onde estão os maiores gaps. Sem enrolação.</p>
+        <p style="margin-top: 12px;">— Renan Real · Quirk Growth</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Preenche nome e email com o que ficou na sessionStorage (se tiver vindo do form)
+    try {
+      const nome = sessionStorage.getItem('lead_nome');
+      const email = sessionStorage.getItem('lead_email');
+      if (nome) {
+        const firstName = nome.trim().split(' ')[0];
+        document.getElementById('lead-nome').textContent = firstName;
+      }
+      if (email) {
+        document.getElementById('lead-email').textContent = email;
+      }
+    } catch (_) {}
+
+    // Track clicks nos downloads
+    document.getElementById('btn-planilha')?.addEventListener('click', () => {
+      if (typeof fbq !== 'undefined') fbq('trackCustom', 'DownloadPlanilha');
+      if (typeof gtag !== 'undefined') gtag('event', 'download', { item: 'planilha_kpis' });
+    });
+    document.getElementById('btn-gpa')?.addEventListener('click', () => {
+      if (typeof fbq !== 'undefined') fbq('trackCustom', 'DownloadGPA');
+      if (typeof gtag !== 'undefined') gtag('event', 'download', { item: 'gpa' });
+    });
+  </script>
+</body>
+</html>

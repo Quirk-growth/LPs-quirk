@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-TGBQHFJ9');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta name="robots" content="noindex,nofollow">
+  <title>Pagamento confirmado · Quirk Auto Ads</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="assets/img/favicon-quirk.png" type="image/png">
+  <link rel="stylesheet" href="assets/styles.css">
+
+  <!-- Conversão (Purchase) → dataLayer · GTM dispara Meta CAPI + GA4 · container GTM-TGBQHFJ9 -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event: 'purchase', value: 497.00, currency: 'BRL' });
+  </script>
+
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .obg-shell {
+      flex: 1;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 48px 24px 60px;
+      text-align: center;
+    }
+
+    /* Logo topo */
+    .obg-logo {
+      display: inline-flex; align-items: center; gap: 12px;
+      margin-bottom: 40px;
+      text-decoration: none; color: var(--color-text);
+    }
+    .obg-logo .mark {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--grad-auto-ads);
+      position: relative; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0, 229, 255, 0.3);
+    }
+    .obg-logo .mark::after { content:''; position:absolute; inset:4px; border-radius:6px; background: var(--color-bg-deep); }
+    .obg-logo .txt { font-family: var(--font-heading); font-weight: 700; font-size: 17px; line-height: 1; text-align: left; }
+    .obg-logo .txt small {
+      display:block; color: var(--color-neon); font-size: 10px;
+      letter-spacing: .15em; text-transform: uppercase; margin-top: 3px; font-weight: 600;
+    }
+
+    /* Check animado */
+    .check-circle {
+      width: 92px; height: 92px;
+      margin: 0 auto 28px;
+      border-radius: 50%;
+      background: var(--color-success-soft);
+      border: 2px solid var(--color-success);
+      display: flex; align-items: center; justify-content: center;
+      animation: pop .5s cubic-bezier(.2,.8,.3,1.2);
+    }
+    .check-circle svg { width: 48px; height: 48px; }
+    @keyframes pop { 0% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+    .obg-shell h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(26px, 5vw, 36px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 14px;
+    }
+    .obg-shell h1 .grad {
+      background: var(--grad-auto-ads);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .obg-lead {
+      color: var(--color-text-muted);
+      font-size: 16px;
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    /* Card do próximo passo */
+    .next-step {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .next-step::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(37, 211, 102, 0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .next-badge {
+      display: inline-block;
+      background: rgba(37, 211, 102, 0.16);
+      color: var(--color-success);
+      border: 1px solid rgba(37, 211, 102, 0.4);
+      padding: 5px 14px; border-radius: 999px;
+      font-family: var(--font-heading); font-weight: 700;
+      font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .next-step h2 {
+      font-family: var(--font-heading);
+      font-size: 22px; font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .next-step p {
+      color: var(--color-text-muted);
+      font-size: 15px; line-height: 1.55;
+      margin-bottom: 24px;
+    }
+
+    .btn-wa {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 18px 28px;
+      background: var(--color-success);
+      color: white;
+      border-radius: 999px;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 17px;
+      text-decoration: none;
+      box-shadow: 0 12px 32px rgba(37, 211, 102, 0.45);
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-wa:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(37, 211, 102, 0.6); }
+    .btn-wa svg { width: 24px; height: 24px; }
+
+    .wa-number {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--color-text-soft);
+    }
+    .wa-number strong { color: var(--color-text); font-family: var(--font-mono); }
+
+    /* Aviso telefone */
+    .obg-warn {
+      background: rgba(255, 187, 51, 0.1);
+      border: 1px solid rgba(255, 187, 51, 0.35);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 13.5px;
+      color: #ffd768;
+      line-height: 1.5;
+      text-align: left;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .obg-warn strong { color: #fff; }
+
+    /* O que vem depois */
+    .timeline {
+      margin-top: 36px;
+      text-align: left;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 24px 26px;
+    }
+    .timeline h3 {
+      font-family: var(--font-heading);
+      font-size: 13px; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--color-text-muted); margin-bottom: 16px;
+    }
+    .timeline ol { list-style: none; counter-reset: tl; }
+    .timeline li {
+      counter-increment: tl;
+      position: relative;
+      padding-left: 38px;
+      padding-bottom: 16px;
+      color: var(--color-text-muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .timeline li:last-child { padding-bottom: 0; }
+    .timeline li::before {
+      content: counter(tl);
+      position: absolute; left: 0; top: 0;
+      width: 26px; height: 26px;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.35);
+      color: var(--color-neon);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading); font-weight: 700; font-size: 12px;
+    }
+    .timeline li:not(:last-child)::after {
+      content: ''; position: absolute; left: 12.5px; top: 28px; bottom: 4px;
+      width: 1px; background: var(--color-border);
+    }
+    .timeline li strong { color: var(--color-text); }
+
+    .obg-footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--color-text-soft);
+      font-size: 13px;
+      border-top: 1px solid var(--color-border);
+    }
+    .obg-footer a { color: var(--color-neon); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TGBQHFJ9"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="obg-shell">
+
+    <a href="index.html" class="obg-logo">
+      <div class="mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="position:relative;z-index:2;">
+          <path d="M3 12l5 5 13-13" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs><linearGradient id="g" x1="3" y1="4" x2="21" y2="17"><stop offset="0" stop-color="#00E5FF"/><stop offset="1" stop-color="#1D80FF"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div class="txt">Auto Ads<small>by Quirk Growth</small></div>
+    </a>
+
+    <div class="check-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#39b54a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+
+    <h1>Pagamento confirmado!<br><span class="grad">Falta só 1 passo.</span></h1>
+    <p class="obg-lead">
+      Tua assinatura do Quirk Auto Ads está ativa. Agora preciso que você abra nosso WhatsApp pra eu te guiar na ativação da tua conta Meta.
+    </p>
+
+    <div class="next-step">
+      <span class="next-badge">⚡ Próximo passo</span>
+      <h2>Abre nosso WhatsApp pra ativar</h2>
+      <p>Clica no botão abaixo. Vai abrir uma conversa já preparada com o assistente do Auto Ads. É só enviar a mensagem que aparece — daí eu começo o teu onboarding na hora.</p>
+
+      <a id="waBtn" href="https://wa.me/5511952136200?text=Acabei%20de%20assinar%20o%20Quirk%20Auto%20Ads%21%20Quero%20ativar%20minha%20conta." target="_blank" rel="noopener" class="btn-wa" onclick="trackActivate()" data-gtm="wa-ativar">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.71.44 3.32 1.2 4.72L2 22l5.4-1.18C8.74 21.56 10.32 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
+        Ativar minha conta no WhatsApp
+      </a>
+
+      <div class="wa-number">ou salva nosso número: <strong>+55 11 95213-6200</strong></div>
+    </div>
+
+    <div class="obg-warn">
+      <span>⚠️</span>
+      <span><strong>Importante:</strong> manda a mensagem do <strong>mesmo número de WhatsApp</strong> que você cadastrou no pagamento. É assim que eu te reconheço e libero teu acesso na hora.</span>
+    </div>
+
+    <div class="timeline">
+      <h3>O que acontece depois</h3>
+      <ol>
+        <li>Você manda a mensagem no nosso WhatsApp.</li>
+        <li>O assistente te guia <strong>passo a passo</strong> pra conectar tua Fanpage, WhatsApp, Instagram e Meta Ads (com prints de cada tela).</li>
+        <li>Quando terminar, eu valido tudo automático e <strong>libero a criação de campanhas</strong>.</li>
+        <li>A partir daí, é só mandar foto/vídeo do imóvel + descrição que a campanha sobe em minutos. 🚀</li>
+      </ol>
+    </div>
+
+  </div>
+
+  <footer class="obg-footer">
+    Quirk Auto Ads · um produto da Quirk Growth · <a href="mailto:contato@quirkgrowth.com.br">contato@quirkgrowth.com.br</a>
+  </footer>
+
+  <script>
+    function trackActivate() {
+      window.dataLayer = window.dataLayer || [];
+      dataLayer.push({ event: 'activate_click' });
+    }
+
+    // Se o Asaas passar params (?nome=&phone=), personaliza o texto da mensagem
+    const p = new URLSearchParams(location.search);
+    const nome = p.get('nome') || p.get('name') || '';
+    if (nome) {
+      const h1 = document.querySelector('h1');
+      h1.innerHTML = 'Parabéns, ' + nome.split(' ')[0] + '!<br><span class="grad">Falta só 1 passo.</span>';
+    }
+  </script>
+
+</body>
+</html>

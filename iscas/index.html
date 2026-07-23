@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-TGBQHFJ9');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="O kit de ferramentas que a Quirk usa por dentro com clientes que faturam +R$1M: Planilha de KPIs, Guia de Primeiro Atendimento e a Calculadora de CPL × Custo por Venda. Acesso imediato por R$ 27,90.">
+  <title>Kit Quirk · As ferramentas dos +R$1M por R$ 27,90</title>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="O kit de ferramentas da operação Quirk — por R$ 27,90">
+  <meta property="og:description" content="Planilha de KPIs + Guia de Primeiro Atendimento + Calculadora de CPL × Custo por Venda. Acesso imediato.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/og-image.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/styles.css">
+
+  <!-- Meta Pixel: agora gerenciado via GTM (container GTM-TGBQHFJ9) + API de Conversão -->
+
+  <!-- ====== ESTILOS DESTA PÁGINA (novos componentes) ====== -->
+  <style>
+    /* 3 colunas nos entregáveis */
+    @media (min-width: 980px) {
+      .iscas-grid.tres { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .isca-card.destaque { border-color: var(--color-accent); box-shadow: 0 0 0 1px var(--color-accent), 0 16px 40px rgba(29,128,255,.18); }
+    .isca-card .novo-tag { background: var(--color-accent); color:#fff; font-size: var(--fs-xs); font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; letter-spacing:.5px; }
+
+    /* selo de preço no hero */
+    .price-tag { display:inline-flex; align-items:baseline; gap:8px; margin-bottom: var(--sp-5); }
+    .price-tag .de { color: var(--color-text-muted); font-size: var(--fs-base); }
+    .price-tag .por { font-family: var(--font-heading); font-weight:800; font-size: var(--fs-3xl); color:#fff; line-height:1; }
+    .price-tag .moeda { font-size: var(--fs-lg); color: var(--color-text-muted); }
+
+    /* prova: comparador CPL */
+    .prova { padding: var(--sp-8) 0; background: var(--color-surface); }
+    .prova h2 { font-size: var(--fs-2xl); font-weight:700; text-align:center; margin-bottom: var(--sp-3); letter-spacing:-.01em; }
+    .prova .lead { text-align:center; color: var(--color-text-soft); max-width:640px; margin:0 auto var(--sp-6); }
+    .calc-print-wrap { max-width: 860px; margin: 0 auto var(--sp-7); }
+    .calc-print { width:100%; height:auto; display:block; border-radius: var(--radius); border:1px solid var(--color-border); box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+    .calc-cap { text-align:center; color: var(--color-text-muted); font-size: var(--fs-sm); margin-top: var(--sp-3); }
+    .comp { max-width: 760px; margin: 0 auto; background: var(--color-surface-2); border:1px solid var(--color-border); border-radius: var(--radius); overflow:hidden; }
+    .comp-head { display:grid; grid-template-columns: 1.2fr 1fr 1fr; }
+    .comp-head > div { padding: var(--sp-4); font-family: var(--font-heading); font-weight:700; font-size: var(--fs-sm); text-align:center; }
+    .comp-head .c-a { background: rgba(239,68,68,.18); color:#ffb3b3; }
+    .comp-head .c-b { background: rgba(57,181,74,.18); color:#a7e3b0; }
+    .comp-row { display:grid; grid-template-columns: 1.2fr 1fr 1fr; border-top:1px solid var(--color-border); }
+    .comp-row > div { padding: var(--sp-3) var(--sp-4); font-size: var(--fs-sm); text-align:center; }
+    .comp-row > div:first-child { text-align:left; color: var(--color-text-soft); }
+    .comp-row.destaque { background: rgba(29,128,255,.08); }
+    .comp-row.destaque > div { font-weight:700; color:#fff; font-size: var(--fs-base); }
+    .comp-num.ruim { color:#ff8a8a; } .comp-num.bom { color: var(--color-success); }
+    .comp-punch { padding: var(--sp-4); background: var(--color-bg); border-top:1px solid var(--color-border); text-align:center; font-size: var(--fs-sm); color: var(--color-text-muted); }
+    .comp-punch strong { color:#fff; }
+
+    /* bloco oferta / por que R$27,90 */
+    .oferta { padding: var(--sp-8) 0; background: var(--color-bg); }
+    .oferta-box { max-width: var(--max-w-narrow); margin:0 auto; background: var(--color-surface); border:1px solid var(--color-accent); border-radius: var(--radius); padding: var(--sp-7); text-align:center; }
+    .oferta-box .preco-grande { font-family: var(--font-heading); font-weight:800; font-size: var(--fs-4xl); color:#fff; line-height:1; margin: var(--sp-3) 0; }
+    .oferta-box .preco-grande .moeda { font-size: var(--fs-xl); color: var(--color-text-muted); vertical-align:top; }
+    .oferta-box ul { list-style:none; text-align:left; max-width:420px; margin: var(--sp-5) auto; }
+    .oferta-box li { padding: var(--sp-2) 0 var(--sp-2) 1.8rem; position:relative; color: var(--color-text-soft); }
+    .oferta-box li::before { content:"✓"; position:absolute; left:0; color: var(--color-success); font-weight:700; }
+    .porque { max-width: var(--max-w-narrow); margin: var(--sp-6) auto 0; color: var(--color-text-soft); text-align:center; line-height:1.7; }
+    .porque strong { color:#fff; }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TGBQHFJ9"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <!-- ====== BANNER (topo) ====== -->
+  <div class="scarcity-banner">
+    <div class="container">
+      <span class="pulse-dot"></span>
+      <strong>ACESSO IMEDIATO POR R$ 27,90</strong> · As ferramentas que rodam por dentro da Quirk.
+    </div>
+  </div>
+
+  <!-- ====== HEADER ====== -->
+  <header class="site-header">
+    <div class="container">
+      <a href="#" class="logo-link">
+        <img src="assets/img/logo-quirk.png" alt="Quirk Growth" class="logo" onerror="this.style.display='none'; this.parentNode.querySelector('.logo-fallback').style.display='inline-block';">
+        <span class="logo-fallback" style="display:none;">QuirkGrowth</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ====== 1. HERO ====== -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <span class="badge">Acesso imediato · kit completo</span>
+          <h1>As ferramentas que a gente usa <strong>com clientes que faturam +R$1M</strong> — na sua mão por R$ 27,90.</h1>
+          <p class="subhead">Planilha de KPIs, Guia de Primeiro Atendimento e a <strong>Calculadora de CPL × Custo por Venda</strong>. Não é PDF motivacional — é o que roda por dentro da Quirk. Você baixa tudo na hora.</p>
+          <div class="price-tag">
+            <span class="moeda">R$</span><span class="por">27,90</span>
+            <span class="de">pagamento único</span>
+          </div>
+          <a href="#formulario" class="btn-primary" data-gtm="cta-hero">Quero o kit por R$ 27,90 →</a>
+          <p class="trust">Acesso na hora após o pagamento · Pagamento seguro · Sem mensalidade</p>
+        </div>
+        <div class="hero-mockups">
+          <div class="mockup mockup-pdf">
+            <img src="assets/img/gpa-capa.png" alt="Capa do GPA - Guia de Primeiro Atendimento" class="mockup-img">
+            <div class="mockup-label">📘 GPA</div>
+          </div>
+          <div class="mockup mockup-planilha">
+            <img src="assets/img/planilha-kpis.png" alt="Planilha de KPIs Quirk" class="mockup-img">
+            <div class="mockup-label">📊 Planilha KPIs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 2. O QUE VOCÊ RECEBE ====== -->
+  <section class="iscas">
+    <div class="container">
+      <span class="section-eyebrow">O que está incluso</span>
+      <h2>Três ferramentas que rodam <span class="accent-text">dentro da Quirk</span></h2>
+      <p class="section-sub">Não é teoria. É o que a gente usa todos os dias com nossos clientes — agora liberado por um valor simbólico.</p>
+
+      <div class="iscas-grid tres">
+        <div class="isca-card">
+          <div class="isca-card-body">
+            <span class="isca-tag">FERRAMENTA 1</span>
+            <h3>Planilha de KPIs da operação</h3>
+            <p>Enxerga onde seu dinheiro escorre, em <strong>3 abas conectadas</strong>:</p>
+            <ul>
+              <li>Suas métricas reais (CPL, conversão, CAC, ROAS)</li>
+              <li>Funil comercial — onde os leads somem</li>
+              <li>Projeção do que melhorar pra escalar</li>
+            </ul>
+          </div>
+        </div>
+        <div class="isca-card">
+          <div class="isca-card-body">
+            <span class="isca-tag">FERRAMENTA 2</span>
+            <h3>GPA — Guia de Primeiro Atendimento</h3>
+            <p>O processo que <strong>separa amador de profissional</strong> no primeiro contato:</p>
+            <ul>
+              <li>Sondagem estruturada</li>
+              <li>Scripts de agendamento prontos</li>
+              <li>Confirmação em etapas (reduz no-show)</li>
+              <li>Follow-up que reativa lead frio</li>
+            </ul>
+          </div>
+        </div>
+        <div class="isca-card destaque">
+          <div class="isca-card-body">
+            <span class="isca-tag">FERRAMENTA 3 <span class="novo-tag">NOVO</span></span>
+            <h3>Calculadora de CPL × Custo por Venda</h3>
+            <p>Pare de comparar CPL com o concorrente. Ela mostra <strong>o número que importa de verdade</strong>:</p>
+            <ul>
+              <li>Seu custo por venda (CAC) real e o ROAS</li>
+              <li>Veredito automático vs. o mercado imobiliário</li>
+              <li>Comparador "CPL barato é ilusão"</li>
+              <li>Referências de CPL por tipo de imóvel</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 3. PROVA: A ILUSÃO DO CPL BARATO ====== -->
+  <section class="prova">
+    <div class="container">
+      <span class="section-eyebrow center">Por dentro da calculadora</span>
+      <h2>O número que importa não é o CPL — é o <span class="accent-text">custo por venda</span></h2>
+      <p class="lead">Você preenche seus números e ela mostra na hora seu custo por venda real, o ROAS e um veredito automático comparado ao mercado:</p>
+
+      <div class="calc-print-wrap">
+        <img src="assets/img/calculadora-cpl.png" alt="Calculadora de CPL × Custo por Venda — Quirk Growth" class="calc-print" onerror="var w=this.closest('.calc-print-wrap'); if(w) w.style.display='none';">
+        <p class="calc-cap">Calculadora de CPL × Custo por Venda — uma das ferramentas do kit.</p>
+      </div>
+
+      <p class="lead">E ela prova na prática: o <strong>CPL barato é uma ilusão</strong>. Veja dois corretores com o mesmo imóvel:</p>
+
+      <div class="comp">
+        <div class="comp-head">
+          <div></div>
+          <div class="c-a">Cenário A<br>CPL baixo · lead ruim</div>
+          <div class="c-b">Cenário B<br>CPL maior · lead bom</div>
+        </div>
+        <div class="comp-row">
+          <div>CPL</div>
+          <div><span class="comp-num">R$ 8</span></div>
+          <div><span class="comp-num">R$ 25</span></div>
+        </div>
+        <div class="comp-row">
+          <div>Leads por venda</div>
+          <div>300</div>
+          <div>80</div>
+        </div>
+        <div class="comp-row destaque">
+          <div>Custo por venda</div>
+          <div><span class="comp-num ruim">R$ 2.400</span></div>
+          <div><span class="comp-num bom">R$ 2.000</span></div>
+        </div>
+        <div class="comp-row">
+          <div>Retorno (ROAS)</div>
+          <div>12,5×</div>
+          <div>15,0×</div>
+        </div>
+        <div class="comp-punch">
+          O Cenário A tem CPL <strong>3× menor</strong> — e mesmo assim custa <strong>mais</strong> por venda. CPL barato costuma ser lead desqualificado. O que paga a conta é a <strong>qualidade do lead</strong>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 4. MENTOR ====== -->
+  <section class="mentor">
+    <div class="container">
+      <div class="mentor-grid">
+        <div class="mentor-img-wrap">
+          <img src="assets/img/renan-real.jpg" alt="Renan Real - Fundador Quirk Growth" class="mentor-img" onerror="this.style.display='none'; this.parentNode.querySelector('.mentor-fallback').style.display='flex';">
+          <div class="mentor-fallback" style="display:none;">RR</div>
+        </div>
+        <div class="mentor-body">
+          <span class="section-eyebrow">Quem está por trás</span>
+          <h2>Renan Real</h2>
+          <p class="mentor-role">Fundador da Quirk Growth · Mentor e estrategista</p>
+          <p>Construí essas ferramentas ao lado do nosso time pra resolver os problemas que mais aparecem na operação real dos nossos clientes — corretores e imobiliárias que faturam de R$500 mil a +R$5 milhões por mês.</p>
+          <p>Não é conteúdo genérico de internet. É o que <strong>usamos por dentro</strong>. Não é de graça de propósito: quem investe R$ 27,90 num material desse é quem realmente vai aplicar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 5. OFERTA + FORM ====== -->
+  <section class="oferta" id="formulario">
+    <div class="container">
+      <div class="oferta-box">
+        <span class="section-eyebrow center">Garanta seu acesso</span>
+        <h2 style="font-size:var(--fs-2xl);">Os 3 materiais, acesso imediato</h2>
+        <div class="preco-grande"><span class="moeda">R$</span> 27,90</div>
+        <p style="color:var(--color-text-muted);">pagamento único · sem mensalidade</p>
+        <ul>
+          <li>Planilha de KPIs da operação</li>
+          <li>GPA — Guia de Primeiro Atendimento</li>
+          <li>Calculadora de CPL × Custo por Venda</li>
+        </ul>
+
+        <form id="lead-form" novalidate style="text-align:left; border:none; padding:0; background:transparent;">
+          <label for="nome" style="display:block; font-weight:600; margin-bottom:var(--sp-2);">Seu nome</label>
+          <input type="text" id="nome" name="nome" required placeholder="Seu nome completo" style="margin-bottom:var(--sp-4);">
+          <label for="email" style="display:block; font-weight:600; margin-bottom:var(--sp-2);">Seu melhor email</label>
+          <input type="email" id="email" name="email" required placeholder="voce@email.com" style="margin-bottom:var(--sp-4);">
+          <label for="whatsapp" style="display:block; font-weight:600; margin-bottom:var(--sp-2);">Seu WhatsApp</label>
+          <input type="tel" id="whatsapp" name="whatsapp" required placeholder="(11) 91234-5678" maxlength="15" style="margin-bottom:var(--sp-4);">
+          <label class="opt opt-lgpd" style="margin-bottom:var(--sp-5);">
+            <input type="checkbox" name="lgpd" required>
+            <span>Concordo em receber comunicações da Quirk Growth conforme a LGPD.</span>
+          </label>
+          <button type="submit" class="btn-primary" data-gtm="cta-checkout" style="width:100%; margin-left:0; text-align:center;">Ir para o pagamento seguro →</button>
+          <p class="submit-error" id="submit-error" style="display:none"></p>
+          <p class="trust" style="text-align:center;">Você será levado ao checkout seguro pra concluir o pagamento de R$ 27,90.</p>
+        </form>
+      </div>
+
+      <p class="porque"><strong>Por que não é de graça?</strong> Porque material que muda operação não combina com "baixei e esqueci". O valor simbólico é o filtro: quem paga, aplica — e ainda ajuda a manter isso no ar.</p>
+    </div>
+  </section>
+
+  <!-- ====== FOOTER ====== -->
+  <footer>
+    <div class="container">
+      <img src="assets/img/logo-quirk.png" alt="Quirk Growth" class="footer-logo" onerror="this.style.display='none'">
+      <p>© Quirk Growth · CNPJ 23.791.711/0001-7</p>
+      <p><a href="#">Política de Privacidade (LGPD)</a> · <a href="https://instagram.com/quirkgrowth" target="_blank">@quirkgrowth</a></p>
+    </div>
+  </footer>
+
+  <script src="assets/form.js"></script>
+</body>
+</html>
