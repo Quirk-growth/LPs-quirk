@@ -63,6 +63,22 @@
   <!-- ====== HERO ====== -->
   <section class="hero">
     <div class="container">
+
+      <!-- ====== VSL (vídeo de cara, autoplay mudo + toque para ativar som) ====== -->
+      <div class="vsl-block">
+        <span class="hero-eyebrow" style="text-align:center;display:block;margin-bottom:14px;">Veja o Auto Ads funcionando 👇</span>
+        <div class="vsl-frame" id="vsl">
+          <!-- VSL Auto Ads (Vimeo id 1222013971) -->
+          <iframe id="vslPlayer"
+            src="https://player.vimeo.com/video/1222013971?autoplay=1&muted=1&playsinline=1&title=0&byline=0&portrait=0&controls=1&dnt=1"
+            frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          <button class="vsl-unmute" id="vslUnmute" type="button" data-gtm="vsl-unmute">
+            🔊 Toque para ativar o som
+          </button>
+        </div>
+        <a href="#comecar" class="btn-primary vsl-cta" onclick="trackCTA('vsl_to_form')" data-gtm="vsl-cta-assinar">Quero começar — R$ 497/mês →</a>
+      </div>
+
       <div class="hero-grid">
         <div>
           <span class="hero-eyebrow">Pra corretor de imóveis · R$ 497/mês</span>
@@ -495,5 +511,20 @@
     </div>
   </footer>
 
+  <!-- VSL: autoplay mudo + botão pra ativar som (navegadores bloqueiam autoplay com som) -->
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <script>
+  (function(){
+    var f=document.getElementById('vslPlayer'), btn=document.getElementById('vslUnmute');
+    if(!f||!window.Vimeo){ if(btn) btn.style.display='none'; return; }
+    var player=new Vimeo.Player(f);
+    player.setMuted(true); player.play().catch(function(){});
+    if(btn){ btn.addEventListener('click',function(){
+      player.setMuted(false); player.setVolume(1); player.play();
+      btn.classList.add('hidden');
+      if(window.dataLayer) window.dataLayer.push({event:'vsl_unmute'});
+    }); }
+  })();
+  </script>
 </body>
 </html>
