@@ -26,6 +26,18 @@
   <link rel="icon" href="assets/img/favicon-quirk.png" type="image/png">
   <link rel="stylesheet" href="assets/styles.css">
 
+  <!-- CSS do VSL embutido (garante o layout mesmo se o styles.css estiver em cache antigo no Cloudflare) -->
+  <style>
+    .vsl-block{max-width:760px;margin:0 auto 48px;text-align:center}
+    .vsl-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45);background:#000}
+    .vsl-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+    .vsl-unmute{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:3;background:rgba(29,128,255,.96);color:#fff;border:0;border-radius:999px;padding:14px 28px;font-weight:600;font-size:17px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .vsl-unmute:hover{background:#1D80FF}
+    .vsl-unmute.hidden{display:none}
+    .vsl-cta{display:inline-block;margin-top:24px}
+    @media(max-width:600px){.vsl-block{margin-bottom:32px}.vsl-unmute{font-size:15px;padding:12px 22px}}
+  </style>
+
   <!-- Tracking (Meta Pixel + Conversions API + GA4) gerenciado via Google Tag Manager · container GTM-TGBQHFJ9 -->
 </head>
 <body>
