@@ -1,0 +1,76 @@
+{
+  "A1": {
+    "publico": "A",
+    "foto": "03-sala-vazia.jpg",
+    "brilho": 1.0,
+    "eyebrow": "DIAGNÓSTICO GRATUITO",
+    "headline": "Você não tem problema de lead.<br>Você tem problema de <b>agenda</b>.",
+    "apoio": "De cada 100 pessoas que chegam, 2 viram paciente. O resto some em etapas que ninguém mede.",
+    "cta": "Descobrir onde eu perco",
+    "escala_h1": 0.84
+  },
+  "A2": {
+    "publico": "A",
+    "foto": "03-sala-vazia.jpg",
+    "brilho": 1.0,
+    "eyebrow": "A ETAPA MAIS CARA DA CLÍNICA",
+    "headline": "Você pagou pelas 10.<br>Só <b>6 apareceram</b>.",
+    "apoio": "Anúncio pago, conversa feita, horário marcado. E a cadeira vazia.",
+    "cta": "Ver quanto eu perco aqui"
+  },
+  "A3": {
+    "publico": "A",
+    "foto": "02-doutora-cansada.jpg",
+    "brilho": 1.24,
+    "eyebrow": "NÃO É FALTA DE ESFORÇO",
+    "headline": "Respondo todo mundo.<br>Posto todo dia.<br>E a agenda <b>não enche</b>.",
+    "apoio": "O problema não é quanto você trabalha. É onde o esforço vaza.",
+    "cta": "Ver onde está vazando"
+  },
+  "A4": {
+    "publico": "A",
+    "foto": "02-doutora-cansada.jpg",
+    "brilho": 1.24,
+    "eyebrow": "A MÉDIA DO MERCADO",
+    "headline": "Clínica ajustada fecha<br><b>6 a 8</b> a cada 100 leads.",
+    "apoio": "E a sua? Seis números, dois minutos, o diagnóstico inteiro.",
+    "cta": "Comparar com a minha"
+  },
+  "B1": {
+    "publico": "B",
+    "foto": "05-clinica-premium.jpg",
+    "brilho": 1.12,
+    "eyebrow": "PARA QUEM JÁ OLHA CUSTO POR LEAD",
+    "headline": "Seu custo por lead<br>não é o problema.<br>É <b>o que vem depois</b>.",
+    "apoio": "O lead entra. A conversão morre entre a primeira resposta e a cadeira.",
+    "cta": "Medir meu funil"
+  },
+  "B2": {
+    "publico": "B",
+    "foto": "04-recepcao-agenda.jpg",
+    "brilho": 1.0,
+    "eyebrow": "TESTE DE 30 SEGUNDOS",
+    "headline": "Pergunte quantos agendaram.<br>Agora quantos <b>apareceram</b>.",
+    "apoio": "Quase nenhuma clínica tem a segunda resposta. É nela que está o dinheiro.",
+    "cta": "Ver o meu número"
+  },
+  "B3": {
+    "publico": "B",
+    "foto": "04-recepcao-agenda.jpg",
+    "brilho": 1.0,
+    "eyebrow": "ANTES DE AUMENTAR A VERBA",
+    "headline": "Dobrar o investimento<br>numa operação que perde 90%<br>é dobrar o <b>vazamento</b>.",
+    "apoio": "Meça antes de escalar. Seis números resolvem.",
+    "cta": "Medir antes de escalar",
+    "escala_h1": 0.92
+  },
+  "B4": {
+    "publico": "B",
+    "foto": "05-clinica-premium.jpg",
+    "brilho": 1.12,
+    "eyebrow": "DIAGNÓSTICO COMPLETO",
+    "headline": "Seis números da sua clínica.<br>Dois minutos.<br>O <b>diagnóstico inteiro</b>.",
+    "apoio": "Índice de conversão, onde você perde mais paciente e quanto muda se arrumar.",
+    "cta": "Fazer meu diagnóstico"
+  }
+}

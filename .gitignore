@@ -6,3 +6,14 @@
 .env
 .env.*
 node_modules/
+
+# saída temporária do preparar-fotos.sh
+_convertidas/
+
+# página temporária de comparação de hero
+_opcoes-hero.html
+
+# criativos: fotos-fonte e PNGs sao pesados, o gerador os reproduz
+criativos-clinics/fotos/*.jpg
+criativos-clinics/saida/
+criativos-clinics.zip
