@@ -11,6 +11,7 @@ Cada pasta é uma LP independente. Projetos maiores ou com lógica própria têm
 | `tech/` | Quirk Tech | Rebrand dark premium da LP principal. Assets pesados de mídia. |
 | `auto-ads/` | Quirk Auto Ads | LP do produto de automação de anúncios. |
 | `nau-marina/` | Nau Marina | LP de empreendimento. |
+| `a2-usucapiao/` | A2 Arquitetura — Usucapião | LP de cliente. Sem formulário: converte por clique no WhatsApp. GTM do cliente (`GTM-TLXM73BN`). Ver `GTM.md` da pasta antes de ligar tráfego. |
 
 ## Repositórios relacionados (fora daqui)
 
