@@ -1,0 +1,41 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "clinics",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8777",
+        "--directory",
+        "clinics"
+      ],
+      "port": 8777
+    },
+    {
+      "name": "a2-usucapiao",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8781",
+        "--directory",
+        "a2-usucapiao"
+      ],
+      "port": 8781
+    },
+    {
+      "name": "calculadora-clinics",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8782",
+        "--directory",
+        "calculadora-clinics"
+      ],
+      "port": 8782
+    }
+  ]
+}

@@ -119,11 +119,19 @@
 
   // Menor nota. O `<=` é o que faz o empate cair na etapa mais ao fundo,
   // porque ETAPAS está em ordem de funil.
-  function gargalo(notas) {
-    var escolhida = ETAPAS[0];
-    var menor = notas[ETAPAS[0]];
-    for (var i = 1; i < ETAPAS.length; i++) {
-      var e = ETAPAS[i];
+  //
+  // `elegiveis` existe porque uma etapa sem origem (denominador zero)
+  // recebe nota 0 por INDEFINIÇÃO, não por desempenho ruim. Num funil
+  // 100/50/25/0/0/0 o gargalo é `agenda` — comparece e fecha nunca
+  // tiveram chance. Sem este filtro o desempate "mais ao fundo" entrega
+  // `fecha`, a tela escreve "de cada 0 pessoas, só 0 fecham" e o closer
+  // liga orientado a treinar fechamento quando o problema é agendar.
+  function gargalo(notas, elegiveis) {
+    var lista = (elegiveis && elegiveis.length) ? elegiveis : ETAPAS;
+    var escolhida = lista[0];
+    var menor = notas[lista[0]];
+    for (var i = 1; i < lista.length; i++) {
+      var e = lista[i];
       if (notas[e] <= menor) { menor = notas[e]; escolhida = e; }
     }
     return escolhida;
@@ -157,11 +165,22 @@
     return saida;
   }
 
-  function cenario(taxasBase, etapasAlteradas, contagensHoje) {
+  // `naoMedidas` recebe as etapas cujo denominador é zero hoje. A taxa
+  // delas não é 0% — é desconhecida. Projetá-las como 0 fazia o cenário
+  // "arruma só o gargalo" render zero paciente exatamente para a clínica
+  // mais quebrada, que é quem mais precisa de ver o ganho. A média de
+  // mercado é a única suposição não arbitrária; em troca, o diagnóstico
+  // sai marcado como estimativa.
+  function cenario(taxasBase, etapasAlteradas, contagensHoje, naoMedidas) {
     var taxas = {};
     for (var i = 0; i < ETAPAS.length; i++) {
       var e = ETAPAS[i];
-      taxas[e] = etapasAlteradas.indexOf(e) >= 0 ? alvoBom(e) : taxasBase[e];
+      // Math.max: uma clínica que já está acima do alvo não pode ser
+      // "corrigida" para baixo. Sem isto, um funil forte via a tela
+      // recomendar que ele piorasse, com selo "+-7 pacientes".
+      var projeta = etapasAlteradas.indexOf(e) >= 0 ||
+                    (naoMedidas && naoMedidas.indexOf(e) >= 0);
+      taxas[e] = projeta ? Math.max(taxasBase[e], alvoBom(e)) : taxasBase[e];
     }
     var proj = projetar(taxas);
     return {
@@ -181,6 +200,13 @@
   // Sem isto, um funil com mais agendamentos que leads produz diagnóstico
   // sem sentido e envenena o lead no comercial.
   function validarFunil(entrada) {
+    for (var n = 0; n < CAMPOS.length; n++) {
+      var v = entrada[CAMPOS[n]];
+      if (typeof v !== 'number' || !isFinite(v) || v < 0) {
+        return { ok: false, campo: CAMPOS[n],
+                 mensagem: 'Preencha o número de ' + ROTULO_CAMPO[CAMPOS[n]] + '.' };
+      }
+    }
     for (var i = 1; i < CAMPOS.length; i++) {
       var atual = entrada[CAMPOS[i]], anterior = entrada[CAMPOS[i - 1]];
       if (atual > anterior) {
@@ -208,11 +234,20 @@
       taxas[e] = t;
       notas[e] = notaEtapa(e, t);
       contagens[e] = para * fator;
-      detalhe.push({ etapa: e, de: de, para: para, taxa: t, nota: notas[e], faixa: faixaEtapa(e, t) });
+      detalhe.push({
+        etapa: e, de: de, para: para, taxa: t, nota: notas[e],
+        faixa: faixaEtapa(e, t),
+        porCem: Math.round(contagens[e]),   // a tela mostra ISTO, não o bruto
+        definida: de > 0
+      });
     }
 
     var valorIndice = indice(notas);
-    var pior = gargalo(notas);
+    var elegiveis = detalhe.filter(function (d) { return d.definida; })
+                           .map(function (d) { return d.etapa; });
+    var naoMedidas = detalhe.filter(function (d) { return !d.definida; })
+                            .map(function (d) { return d.etapa; });
+    var pior = gargalo(notas, elegiveis);
 
     return {
       indice: valorIndice,
@@ -220,9 +255,9 @@
       etapas: detalhe,
       gargalo: pior,
       fechamentosPor100: Math.round((entrada.fecham || 0) * fator),
-      estimativa: leads < VOLUME_MINIMO,
-      cenarioGargalo: cenario(taxas, [pior], contagens),
-      cenarioTudoBom: cenario(taxas, ETAPAS.slice(), contagens)
+      estimativa: leads < VOLUME_MINIMO || naoMedidas.length > 0,
+      cenarioGargalo: cenario(taxas, [pior], contagens, naoMedidas),
+      cenarioTudoBom: cenario(taxas, ETAPAS.slice(), contagens, naoMedidas)
     };
   }
 
@@ -232,8 +267,11 @@
   function montarPayload(funil, contato, resultado) {
     var nomeCompleto = String(contato.nome || '').trim();
     var partes = nomeCompleto.split(/\s+/);
+    // Decide por COMPRIMENTO, não por prefixo: DDD 55 é Santa Maria, e
+    // testar /^55/ fazia (55) 99999-8888 virar 55999998888 — 11 dígitos,
+    // sem código de país. O lead chegava no CRM com número impossível.
     var tel = String(contato.whatsapp || '').replace(/\D/g, '');
-    if (tel && !/^55/.test(tel)) tel = '55' + tel;
+    if (tel && tel.length <= 11) tel = '55' + tel;
     var ig = String(contato.instagram || '').trim().replace(/^@+/, '');
 
     var p = {

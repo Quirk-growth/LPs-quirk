@@ -70,10 +70,12 @@
       if (valor === null) { erro(i, 'Preencha este número para continuar.'); return false; }
       if (i === 1 && valor === 0) { erro(i, 'Sem leads não há funil para diagnosticar.'); return false; }
 
-      var parcial = coletaFunil();
-      for (var k = 1; k <= i - 1; k++) parcial[M.CAMPOS[k]] = parcial[M.CAMPOS[k]];
-      var v = M.validarFunil(parcial);
-      if (!v.ok && M.CAMPOS.indexOf(v.campo) === i - 1) { erro(i, v.mensagem); return false; }
+      // Só reclama de campo JÁ preenchido: os de baixo ainda estão vazios
+      // e `validarFunil` acusaria ausência. Mas se a incoerência aponta
+      // para um campo anterior, a mensagem aparece — antes isso era
+      // engolido e a pessoa seguia com funil impossível até o resultado.
+      var v = M.validarFunil(coletaFunil());
+      if (!v.ok && M.CAMPOS.indexOf(v.campo) <= i - 1) { erro(i, v.mensagem); return false; }
       return true;
     }
 
@@ -104,6 +106,9 @@
   // Enter avança, sem passar por evento submit nativo.
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Enter') return;
+    // Enter em cima de um link ou de outro botão é daquele elemento, não
+    // nosso: sequestrar fazia o foco no "Voltar" avançar o passo.
+    if (e.target && e.target.closest && e.target.closest('a,button')) return;
     if (!painel.classList.contains('ativo')) {
       e.preventDefault();
       var btn = passos[atual].querySelector('[data-avancar]') || document.getElementById('enviar');
@@ -126,6 +131,13 @@
   var COR_FAIXA = { abaixo:'var(--f-abaixo)', medio:'var(--f-medio)', bom:'var(--f-bom)', excelente:'var(--f-excelente)' };
   var TINTA_FAIXA = { abaixo:'var(--f-tinta-clara)', medio:'var(--f-tinta-clara)', bom:'var(--f-tinta-escura)', excelente:'var(--f-tinta-escura)' };
   var NOME_ETAPA = { responde:'Respondem', engaja:'Engajam', agenda:'Agendam', comparece:'Comparecem', fecha:'Fecham' };
+  // Forma nominal, para o título do cenário: "Você arruma só o
+  // agendamento" — nunca "Você arruma só agendam".
+  var NOME_NOMINAL = { responde:'a resposta', engaja:'o engajamento', agenda:'o agendamento',
+                       comparece:'o comparecimento', fecha:'o fechamento' };
+  // Preposição já contraída: "antes do comparecimento", não "antes de o".
+  var NOME_DE = { responde:'da resposta', engaja:'do engajamento', agenda:'do agendamento',
+                  comparece:'do comparecimento', fecha:'do fechamento' };
 
   // O diagnóstico fala em gente, nunca em taxa. Dono de clínica pensa em
   // pessoas; "taxa de comparecimento de 50%" não diz nada a ele.
@@ -150,7 +162,7 @@
   function linhaFunil(e, ehGargalo) {
     return '<div class="linha' + (ehGargalo ? ' gargalo' : '') + '">' +
       '<span class="nome">' + NOME_ETAPA[e.etapa] + '</span>' +
-      '<span class="qtd">' + Math.round(e.para) + '</span>' +
+      '<span class="qtd">' + e.porCem + '</span>' +
       '<div class="barra"><i style="width:' + Math.min(100, e.taxa).toFixed(1) + '%;background:' + COR_FAIXA[e.faixa.chave] + '"></i></div>' +
       '<span class="tx">' + Math.round(e.taxa) + '%</span>' +
       '<span class="fx"><span class="pill" style="background:' + COR_FAIXA[e.faixa.chave] + ';color:' + TINTA_FAIXA[e.faixa.chave] + '">' + e.faixa.rotulo + '</span></span>' +
@@ -176,9 +188,16 @@
   // Math.floor, não round: 6,5× vira "6× mais", nunca "7×". Num número
   // que o comercial vai repetir, arredondar a favor é exagerar.
   function seloMultiplo(depois, antes) {
-    if (antes <= 0) return 'o salto';
+    // Sem base para multiplicar (fecha zero hoje), o múltiplo não existe
+    // — o número absoluto é o que diz algo a quem está olhando.
+    if (antes <= 0) {
+      return depois > 0 ? '+' + depois + (depois === 1 ? ' paciente' : ' pacientes')
+                        : 'sem ganho aqui';
+    }
     var m = Math.floor(depois / antes);
-    return m >= 2 ? m + '× mais' : '+' + (depois - antes) + ' pacientes';
+    if (m >= 2) return m + '× mais';
+    var d = depois - antes;
+    return d > 0 ? '+' + d + (d === 1 ? ' paciente' : ' pacientes') : 'já está no alvo';
   }
 
   function blocoCenario(titulo, sub, cen, selo) {
@@ -189,6 +208,20 @@
       '<div class="total"><span class="n">' + cen.fechamentosPor100 + '</span>' +
       '<span class="t">pacientes a cada 100 leads</span>' +
       '<span class="pill" style="background:var(--f-excelente);color:#fff">' + selo + '</span></div></div>';
+  }
+
+  // Duas razões diferentes marcam o diagnóstico como estimativa, e a
+  // pessoa precisa saber qual é a dela: volume baixo é "margem de erro",
+  // etapa zerada é "essa parte do funil não foi medida".
+  function avisoEstimativa(r) {
+    var zeradas = r.etapas.filter(function (e) { return !e.definida; });
+    if (zeradas.length) {
+      return 'Seu funil para antes ' + NOME_DE[zeradas[0].etapa] +
+             ', então essa parte não foi medida — os cenários usam a média de ' +
+             'mercado dali para frente. Trate este diagnóstico como estimativa.';
+    }
+    return 'Com menos de ' + M.VOLUME_MINIMO + ' leads por mês, um paciente a mais ' +
+           'ou a menos muda muito o resultado. Trate este diagnóstico como estimativa.';
   }
 
   function renderResultado(r) {
@@ -202,17 +235,20 @@
       '<p class="frase">Sua clínica fecha <strong>' + r.fechamentosPor100 + '</strong> ' +
       (r.fechamentosPor100 === 1 ? 'paciente' : 'pacientes') +
       ' a cada 100 leads. Uma operação bem ajustada fecha de 6 a 8.</p>' +
-      (r.estimativa ? '<p class="aviso">Com menos de ' + M.VOLUME_MINIMO + ' leads por mês, um paciente a mais ou a menos muda muito o resultado. Trate este diagnóstico como estimativa.</p>' : '') +
+      (r.estimativa ? '<p class="aviso">' + avisoEstimativa(r) + '</p>' : '') +
       '</div>';
 
     html += '<div class="bloco"><p class="rotulo">Seu funil, a cada 100 leads</p>' +
+      '<div class="linha"><span class="nome">Leads</span><span class="qtd">100</span>' +
+      '<div class="barra"><i style="width:100%;background:#D8E3F0"></i></div>' +
+      '<span class="tx"></span><span class="fx"></span></div>' +
       r.etapas.map(function (e) { return linhaFunil(e, e.etapa === r.gargalo); }).join('') + '</div>';
 
     html += '<div class="bloco diag"><p class="rotulo">Diagnóstico</p>' +
       '<p class="titulo">' + g[0] + '</p><p>' + g[1] + '</p></div>';
 
     html += '<div class="bloco"><p class="rotulo">O que muda se você arrumar</p>' +
-      blocoCenario('Você arruma só ' + NOME_ETAPA[r.gargalo].toLowerCase(),
+      blocoCenario('Você arruma só ' + NOME_NOMINAL[r.gargalo],
                    'Uma etapa, a mais barata de corrigir.',
                    r.cenarioGargalo,
                    seloGanho(r.cenarioGargalo.fechamentosPor100 - r.fechamentosPor100)) +

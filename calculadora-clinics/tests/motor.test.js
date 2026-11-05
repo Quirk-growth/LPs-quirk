@@ -132,3 +132,69 @@ test('payload normaliza contato e carrega o diagnostico', () => {
   assert.strictEqual(p.estimativa, false);
   assert.ok(/^lead_\d+_/.test(p.event_id));
 });
+
+/* ===== Achados da revisão final ===== */
+
+// O fixture de 100 leads escondia isto: com leads != 100 a normalização
+// deixa de ser identidade e as contagens brutas divergem das por-100.
+test('etapas expoem a contagem normalizada por 100 leads', () => {
+  const r = M.diagnostico({ leads:200, respondem:90, engajam:40, agendam:16, comparecem:9, fecham:4 });
+  const porEtapa = Object.fromEntries(r.etapas.map(e => [e.etapa, e.porCem]));
+  assert.strictEqual(porEtapa.responde, 45);
+  assert.strictEqual(porEtapa.engaja, 20);
+  assert.strictEqual(porEtapa.fecha, 2);
+  assert.strictEqual(r.fechamentosPor100, 2);
+});
+
+test('cenario nunca projeta uma etapa para baixo', () => {
+  // Clínica forte: todas as taxas acima do ponto médio de "bom".
+  const forte = { leads:100, respondem:70, engajam:50, agendam:36, comparecem:30, fecham:20 };
+  const r = M.diagnostico(forte);
+  assert.ok(r.cenarioTudoBom.fechamentosPor100 >= r.fechamentosPor100,
+    'tudo-bom nao pode render menos que hoje');
+  assert.ok(r.cenarioGargalo.fechamentosPor100 >= r.fechamentosPor100,
+    'arrumar o gargalo nao pode render menos que hoje');
+  r.cenarioTudoBom.etapas.forEach(d => {
+    assert.ok(d.depois >= d.antes, d.etapa + ' regrediu: ' + d.antes + ' -> ' + d.depois);
+  });
+});
+
+test('etapa sem origem nao pode roubar o gargalo', () => {
+  // 25 engajados e zero agendamentos: o gargalo e agenda. As etapas
+  // seguintes tem nota 0 por INDEFINICAO, nao por desempenho ruim.
+  const r = M.diagnostico({ leads:100, respondem:50, engajam:25, agendam:0, comparecem:0, fecham:0 });
+  assert.strictEqual(r.gargalo, 'agenda');
+});
+
+test('telefone com DDD 55 mantem o codigo do pais', () => {
+  const p = M.montarPayload(EXEMPLO, { nome:'X Y', email:'a@b.c', whatsapp:'(55) 99999-8888', instagram:'' }, M.diagnostico(EXEMPLO));
+  assert.strictEqual(p.whatsapp, '5555999998888');
+});
+
+test('telefone comum continua ganhando o 55', () => {
+  const p = M.montarPayload(EXEMPLO, { nome:'X Y', email:'a@b.c', whatsapp:'(11) 94444-3333', instagram:'' }, M.diagnostico(EXEMPLO));
+  assert.strictEqual(p.whatsapp, '5511944443333');
+});
+
+test('validarFunil recusa numero ausente', () => {
+  assert.strictEqual(M.validarFunil({}).ok, false);
+  assert.strictEqual(M.validarFunil({ leads:100, respondem:45, engajam:null, agendam:8, comparecem:4, fecham:2 }).ok, false);
+});
+
+// Uma etapa sem origem (0 de 0) não tem taxa medida — tratá-la como 0%
+// fazia o cenário "arruma só o gargalo" render 0 pacientes e o selo dizer
+// "sem ganho aqui" justamente para a clínica que mais precisa do pitch.
+// A única suposição não arbitrária para projetar adiante é a média de
+// mercado, e o resultado sai marcado como estimativa.
+test('cenário projeta etapa não medida pela média de mercado', () => {
+  const r = M.diagnostico({ leads:100, respondem:50, engajam:25, agendam:0, comparecem:0, fecham:0 });
+  assert.ok(r.cenarioGargalo.fechamentosPor100 > 0,
+    'arrumar o agendamento tem de render paciente, não zero');
+  assert.strictEqual(r.estimativa, true,
+    'diagnóstico com etapa não medida é estimativa');
+});
+
+test('funil todo medido e com volume não é estimativa', () => {
+  const r = M.diagnostico({ leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 });
+  assert.strictEqual(r.estimativa, false);
+});
