@@ -198,3 +198,53 @@ test('funil todo medido e com volume não é estimativa', () => {
   const r = M.diagnostico({ leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 });
   assert.strictEqual(r.estimativa, false);
 });
+
+// A calculadora vai viver numa URL própria, trackeada separado da LP. Sem
+// UTM no payload o lead chega no hub sem atribuição e ninguém sabe qual
+// anúncio pagou por ele.
+test('payload carrega UTM e fbclid da query string', () => {
+  const r = M.diagnostico({ leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 });
+  const p = M.montarPayload(
+    { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 },
+    { nome:'Ana', email:'a@b.com', whatsapp:'(11) 94444-3333', instagram:'' },
+    r,
+    '?utm_source=facebook&utm_medium=paid&utm_campaign=clinics-calc&utm_content=video1&utm_term=dentista&fbclid=ABC123'
+  );
+  assert.strictEqual(p.utm_source, 'facebook');
+  assert.strictEqual(p.utm_medium, 'paid');
+  assert.strictEqual(p.utm_campaign, 'clinics-calc');
+  assert.strictEqual(p.utm_content, 'video1');
+  assert.strictEqual(p.utm_term, 'dentista');
+  assert.strictEqual(p.fbclid, 'ABC123');
+});
+
+test('payload sem query string traz UTM vazio, nunca undefined', () => {
+  const r = M.diagnostico({ leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 });
+  const p = M.montarPayload(
+    { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 },
+    { nome:'Ana', email:'a@b.com', whatsapp:'(11) 94444-3333', instagram:'' }, r, '');
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'].forEach(function (k) {
+    assert.strictEqual(p[k], '', k + ' deve ser string vazia');
+  });
+});
+
+// Mercado de clínica é cheio de "Dra Ana Paula". Sem tirar o título, o
+// first_name vira "dra" — o e-mail cumprimenta "Olá dra" e o advanced
+// matching do Meta tenta casar um lead chamado "dra".
+test('título de tratamento não entra no first_name', () => {
+  const funil = { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 };
+  const r = M.diagnostico(funil);
+  const casos = [
+    ['Dra Ana Paula Souza', 'ana', 'paula souza'],
+    ['Dr. Carlos Mendes',   'carlos', 'mendes'],
+    ['Doutora Beatriz',     'beatriz', ''],
+    ['Ana Paula Souza',     'ana', 'paula souza'],
+    ['Drago Silva',         'drago', 'silva']   // começa com "dra", não é título
+  ];
+  for (const [entrada, primeiro, ultimo] of casos) {
+    const p = M.montarPayload(funil, { nome: entrada, email:'a@b.com', whatsapp:'11944443333', instagram:'' }, r, '');
+    assert.strictEqual(p.first_name, primeiro, entrada + ' -> first_name');
+    assert.strictEqual(p.last_name, ultimo, entrada + ' -> last_name');
+    assert.strictEqual(p.nome, entrada, 'o nome cheio é preservado como a pessoa escreveu');
+  }
+});

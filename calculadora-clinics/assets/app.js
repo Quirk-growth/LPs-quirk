@@ -14,9 +14,11 @@
 (function () {
   'use strict';
 
-  // ⚠️ O cenário do Make ainda não existe. Trocar pela URL do webhook
-  // novo antes de publicar, ou o envio não tem destino.
-  var WEBHOOK_URL = 'https://hook.us1.make.com/SUBSTITUIR_PELO_WEBHOOK_DA_CALCULADORA';
+  // Webhook do n8n (workflow "Calculadora Clinics — leads").
+  // O workflow precisa estar ATIVO: inativo, o n8n devolve 404 e o lead
+  // se perde silenciosamente, porque o envio é no-cors e não dá para ler
+  // a resposta.
+  var WEBHOOK_URL = 'https://n8n.quirkgrowth.online/webhook/calculadora-clinics';
 
   var PIXEL = '1669763490913089';
   var M = window.MotorClinics;
@@ -141,19 +143,24 @@
 
   // O diagnóstico fala em gente, nunca em taxa. Dono de clínica pensa em
   // pessoas; "taxa de comparecimento de 50%" não diz nada a ele.
+  // Concordância: "só 1 aparecem" é o tipo de erro que o dono da clínica
+  // lê como desleixo, e ele está julgando a Quirk pela tela.
+  function pl(n, um, muitos) { return n === 1 ? um : muitos; }
+
   function fraseGargalo(r) {
     var et = r.etapas.filter(function (e) { return e.etapa === r.gargalo; })[0];
     var de = Math.round(et.de), para = Math.round(et.para);
+    var pessoas = 'De cada ' + de + ' ' + pl(de, 'pessoa', 'pessoas');
     var textos = {
-      responde:  ['De cada ' + de + ' pessoas que chegam, só ' + para + ' respondem.',
+      responde:  [pessoas + pl(de, ' que chega', ' que chegam') + ', só ' + para + pl(para, ' responde.', ' respondem.'),
                   'A maior parte do que você paga em anúncio morre antes da primeira conversa. Normalmente é velocidade de resposta e primeira mensagem.'],
-      engaja:    ['De cada ' + de + ' que respondem, só ' + para + ' continuam a conversa.',
+      engaja:    ['De cada ' + de + pl(de, ' que responde', ' que respondem') + ', só ' + para + pl(para, ' continua a conversa.', ' continuam a conversa.'),
                   'O time conversa, mas não prende. É a etapa onde falta qualificação e condução — a pessoa responde e some.'],
-      agenda:    ['De cada ' + de + ' pessoas interessadas, só ' + para + ' marcam consulta.',
+      agenda:    [pessoas + ' interessada' + pl(de, '', 's') + ', só ' + para + pl(para, ' marca consulta.', ' marcam consulta.'),
                   'Elas queriam. Perguntaram preço, procedimento, horário — e não fecharam a agenda. Falta pedir o agendamento de forma direta.'],
-      comparece: ['De cada ' + de + ' pessoas que agendam, só ' + para + ' aparecem.',
+      comparece: [pessoas + pl(de, ' que agenda', ' que agendam') + ', só ' + para + pl(para, ' aparece.', ' aparecem.'),
                   'Parte da sua agenda evapora antes da consulta. Você já pagou o anúncio, já respondeu, já convenceu a marcar — e perde ali. É a etapa mais barata de arrumar da clínica inteira.'],
-      fecha:     ['De cada ' + de + ' pessoas que sentam na cadeira, só ' + para + ' fecham.',
+      fecha:     [pessoas + pl(de, ' que senta', ' que sentam') + ' na cadeira, só ' + para + pl(para, ' fecha.', ' fecham.'),
                   'A pessoa veio até você e saiu sem comprar. Isso é consulta: diagnóstico, apresentação de proposta e fechamento.']
     };
     return textos[r.gargalo];
@@ -325,10 +332,25 @@
     renderResultado(r);
     enviado = true;
 
+    // Corpo form-urlencoded e mode:'no-cors' — é o padrão que a LP do VSL
+    // já usa contra este mesmo n8n. JSON cross-origin dispara preflight
+    // OPTIONS; se o n8n ou o proxy não responder o preflight, o browser
+    // bloqueia e o lead desaparece sem erro visível. Requisição simples
+    // não tem preflight para falhar.
+    //
+    // keepalive: a pessoa clica no CTA e sai da página logo depois do
+    // resultado. Sem isso o browser cancela o envio na navegação.
+    var corpo = [];
+    Object.keys(payload).forEach(function (k) {
+      corpo.push(encodeURIComponent(k) + '=' + encodeURIComponent(String(payload[k])));
+    });
+
     fetch(WEBHOOK_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      mode: 'no-cors',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: corpo.join('&')
     }).catch(function (e) { console.error('Falha ao enviar o lead:', e); });
   });
 

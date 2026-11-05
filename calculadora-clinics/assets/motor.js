@@ -264,9 +264,35 @@
   // Payload plano. O cenário do Make é quem monta o respostas[] do CRM.
   // Normaliza aqui para o advanced matching do Meta: minúsculas, e
   // telefone só dígitos com 55 na frente.
-  function montarPayload(funil, contato, resultado) {
+  // Lê a query string sem URLSearchParams, que não existe no ambiente de
+  // teste do motor (e o motor não pode tocar browser).
+  var UTMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'];
+  function lerUtms(busca) {
+    var achados = {}, i;
+    for (i = 0; i < UTMS.length; i++) achados[UTMS[i]] = '';
+    var cru = String(busca || '').replace(/^\?/, '');
+    if (!cru) return achados;
+    var pares = cru.split('&');
+    for (i = 0; i < pares.length; i++) {
+      var corte = pares[i].indexOf('=');
+      if (corte < 0) continue;
+      var chave = pares[i].slice(0, corte);
+      if (UTMS.indexOf(chave) < 0) continue;
+      try { achados[chave] = decodeURIComponent(pares[i].slice(corte + 1).replace(/\+/g, ' ')); }
+      catch (e) { achados[chave] = pares[i].slice(corte + 1); }
+    }
+    return achados;
+  }
+
+  function montarPayload(funil, contato, resultado, busca) {
     var nomeCompleto = String(contato.nome || '').trim();
-    var partes = nomeCompleto.split(/\s+/);
+    // Tira título de tratamento antes de partir o nome: neste mercado
+    // "Dra Ana Paula" é o caso comum, e sem isto o first_name vira "dra".
+    // Casa a palavra inteira, então "Drago" não é confundido com "Dra".
+    var partes = nomeCompleto.split(/\s+/).filter(function (w) {
+      return !/^(dr|dra|drs|doutor|doutora|prof|profa|professor|professora)\.?$/i.test(w);
+    });
+    if (!partes.length) partes = nomeCompleto.split(/\s+/);
     // Decide por COMPRIMENTO, não por prefixo: DDD 55 é Santa Maria, e
     // testar /^55/ fazia (55) 99999-8888 virar 55999998888 — 11 dígitos,
     // sem código de país. O lead chegava no CRM com número impossível.
@@ -295,6 +321,12 @@
       event_name: 'Lead'
     };
     p.event_source_url = p.url;
+
+    // Atribuição: esta página vive numa URL própria, trackeada separado da
+    // LP. Sem UTM o lead chega no hub sem saber qual anúncio pagou por ele.
+    var utms = lerUtms(busca !== undefined ? busca
+                       : ((typeof location !== 'undefined') ? location.search : ''));
+    for (var u = 0; u < UTMS.length; u++) p[UTMS[u]] = utms[UTMS[u]];
 
     for (var i = 0; i < CAMPOS.length; i++) p[CAMPOS[i]] = funil[CAMPOS[i]];
     return p;

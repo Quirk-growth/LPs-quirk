@@ -13,9 +13,12 @@ aquela clínica sangra.
 
 ## ⚠️ Antes de publicar
 
-**O cenário do Make não existe.** `assets/app.js` aponta para
-`SUBSTITUIR_PELO_WEBHOOK_DA_CALCULADORA`. Sem trocar isso, o lead não
-tem destino — a página mostra o diagnóstico e o lead se perde.
+**Importar e ATIVAR o workflow do n8n** (`n8n/calculadora-clinics.n8n.json`).
+A página já aponta para
+`https://n8n.quirkgrowth.online/webhook/calculadora-clinics`. Com o
+workflow inativo o n8n devolve 404 e o lead **se perde em silêncio** — o
+envio é `no-cors`, então a página não consegue ler a resposta e não tem
+como avisar.
 
 **Conferir a Ferramenta de Configuração de Eventos do Meta** para
 `clinics.quirkgrowth.com.br/calculadora/`. Aquelas regras casam por
@@ -60,9 +63,10 @@ silenciosa.
 node --test "tests/*.test.js"
 ```
 
-Sem framework, sem instalar nada: `node:test` é nativo. Cobrem taxa,
-faixa, interpolação de nota, índice, gargalo com desempate, os dois
-cenários, validação de funil e montagem do payload.
+Sem framework, sem instalar nada: `node:test` é nativo. 29 testes. Cobrem
+taxa, faixa, interpolação de nota, índice, gargalo com desempate, os
+dois cenários, validação de funil, UTM, título de tratamento no nome e
+montagem do payload.
 
 ---
 
@@ -94,22 +98,74 @@ mais caro.
 
 ## Contrato do payload
 
-Plano, 23 campos. O cenário do Make é quem monta o `respostas[]` do CRM.
+Plano, 29 campos, **tudo string** — o envio é form-urlencoded.
 
 ```
 nome · email · whatsapp · instagram · first_name · last_name
 leads · respondem · engajam · agendam · comparecem · fecham
 indice · faixa · gargalo · fechamentos_por_100 · estimativa
 origem · url · enviado_em · event_id · event_source_url · event_name
+utm_source · utm_medium · utm_campaign · utm_content · utm_term · fbclid
 ```
 
 `origem` é sempre `"Calculadora Clinics"`. `estimativa` é verdadeiro
-quando o volume está abaixo de 30 leads/mês e o diagnóstico é frágil.
+quando o volume está abaixo de 30 leads/mês **ou** quando alguma etapa
+tem denominador zero — nesse caso a taxa não foi medida, e os cenários
+projetam aquela etapa pela média de mercado.
 
-O cenário do Make precisa de quatro módulos — CRM, e-mail interno,
-e-mail para o lead, Google Sheets — **todos com tratamento de erro
-`Ignore`**. A LP já entrou em loop de reenvio de e-mail quando um módulo
-sem tratamento falhou e o Make reexecutou o fluxo inteiro cinco vezes.
+`first_name` sai minúsculo de propósito (normalização do advanced
+matching do Meta) e **sem título de tratamento**: "Dra Ana Paula" rende
+`ana` / `paula souza`, não `dra`.
+
+### Por que form-urlencoded e não JSON
+
+JSON cross-origin dispara preflight `OPTIONS`. Se o n8n ou o proxy não
+responder o preflight, o browser bloqueia e o lead desaparece sem erro
+visível. Form-urlencoded com `mode:'no-cors'` é requisição simples: não
+tem preflight para falhar. É o mesmo padrão que a LP do VSL já usa
+contra este mesmo n8n. O `keepalive:true` existe porque a pessoa clica
+no CTA e sai da página logo depois do resultado.
+
+---
+
+## O workflow do n8n
+
+`n8n/calculadora-clinics.n8n.json` — importar em n8n → *Import from
+File*. Cinco nós:
+
+```
+Webhook (POST /webhook/calculadora-clinics)
+   └─ Preparar lead (Code)
+        ├─ E-mail interno (comercial)
+        ├─ E-mail para o lead
+        └─ Registrar na planilha
+```
+
+**Depois de importar, três coisas:**
+
+1. Trocar as credenciais dos três nós finais (import nunca traz
+   credencial): Gmail nos dois e-mails, Google Sheets na planilha.
+2. Criar a aba **`Leads Calculadora Clinics`** na planilha
+   `1WmzgFMidtIUMdg_Qg11AXlduPoY_qghrjaiQnlHxnu0`, com os cabeçalhos na
+   ordem do nó (o mapeamento é por nome de coluna).
+3. **Ativar o workflow.** Sem isso o webhook responde 404.
+
+**Todo nó que fala com serviço externo tem `onError:
+continueRegularOutput` e `retryOnFail: false`.** Não é decoração: no
+Make, um módulo sem tratamento de erro fez o cenário reexecutar inteiro
+e reenviar o mesmo e-mail cinco vezes para o mesmo lead. O e-mail para
+o lead não pode depender de a planilha ter funcionado.
+
+A cópia do diagnóstico (a frase "de cada N pessoas que agendam, só M
+aparecem") mora no nó **Preparar lead**, em `n8n/preparar.js`, não na
+página — é o e-mail que a consome. Editar o `.js` solto não muda nada:
+o código vive dentro do JSON do workflow. Para regerar, substituir o
+`jsCode` do nó Code.
+
+O nó também deriva o **tier** que o comercial usa para priorizar
+ligação: `hot` = 100+ leads/mês e índice abaixo de 65 (muito volume
+vazando, mais dinheiro na mesa), `warm` = 30+ leads/mês, `cold` =
+volume baixo demais para confiar no diagnóstico.
 
 ---
 
@@ -119,7 +175,7 @@ Subpasta de `clinics.quirkgrowth.com.br`, então **herda o `.htaccess` da
 LP** — incluindo cache de um ano com `immutable` em CSS e JS.
 
 ```bash
-zip -r ../calculadora-clinics.zip . -x "tests/*" "build.py" "README.md" "*.DS_Store"
+zip -r ../calculadora-clinics.zip . -x "tests/*" "n8n/*" "build.py" "README.md" "*.DS_Store"
 ```
 
 1. Extrair em `public_html/clinics.quirkgrowth.com.br/calculadora/`
