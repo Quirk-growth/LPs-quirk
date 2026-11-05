@@ -136,12 +136,35 @@ atrito e a mais racional.
 
 ---
 
+## O layout
+
+Não foi inventado: foi lavrado em cima de `clinics/assets/styles.css`. Os
+elementos vêm todos da LP.
+
+- **Grade de 64px** em `rgba(74,143,232,.06)`, mascarada pela mesma radial da
+  página
+- **Lavagens radiais** azuis nos cantos opostos, criando a diagonal
+- **Badge-pílula** com bolinha azul sobre `#E8F1FE` — o dispositivo que a LP
+  usa nas tags de seção
+- **Linha-assinatura** do brandbook: bloquinho preto de 14×6 + fio
+- **CTA em degradê 135°** `#4A8FE8 → #2F6FC4`, o mesmo da página
+- **Palavra de destaque** da headline em degradê recortado no texto
+
+O movimento vem do desencontro: a foto sangra pela direita, o cartão branco
+sangra pela esquerda e **sobe por cima dela**. O borrão de degradê atrás
+ancora a diagonal. O CTA mora dentro do cartão, que é mais uma sobreposição e
+evita o vão morto de fundo.
+
+**A LP usa Inter nos títulos, não Sora.** Sora aparece só no wordmark do logo.
+A primeira versão destas peças usou Sora e era o que mais as afastava da
+página.
+
 ## Como regerar
 
 As artes são compostas em HTML e renderizadas em Chrome headless, não
-desenhadas por gerador de imagem. É o que garante Sora e Inter de verdade, o
+desenhadas por gerador de imagem. É o que garante a Inter de verdade, o
 `#4A8FE8` exato e o logo como arquivo em vez de reconstrução — gerador de
-imagem erra texto e inventa logo.
+imagem erra grafia em português e inventa logo.
 
 ```bash
 python3 gerar.py          # as 16
@@ -158,14 +181,14 @@ Editar copy em `copy.json`. Chaves por peça:
 ## Arquivos
 
 ```
-fotos/     5 fotos geradas, 1856×2304  (01 descartada: escura e com moldura)
+fotos/     4 fotos geradas, 1856×2304
 saida/     os 16 PNG prontos
 copy.json  a copy de cada peça
 gerar.py   o compositor
 ```
 
-**No story, o rodapé para 300px antes da base de propósito.** O Instagram cobre
-essa faixa com a barra de resposta; CTA e logo colados no fim ficam atrás dela.
+**No story, o rodapé para ~300px antes da base de propósito.** O Instagram
+cobre essa faixa com a barra de resposta.
 
 ## Identidade
 
