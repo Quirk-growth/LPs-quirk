@@ -48,7 +48,7 @@
       "typeVersion": 2.1,
       "position": [
         520,
-        120
+        320
       ],
       "id": "e-mail-interno-(comercial)",
       "name": "E-mail interno (comercial)",
@@ -76,7 +76,7 @@
       "typeVersion": 2.1,
       "position": [
         520,
-        300
+        520
       ],
       "id": "e-mail-para-o-lead",
       "name": "E-mail para o lead",
@@ -142,7 +142,7 @@
       "typeVersion": 4.5,
       "position": [
         520,
-        480
+        120
       ],
       "id": "registrar-na-planilha",
       "name": "Registrar na planilha",
@@ -155,6 +155,20 @@
           "name": "Google Sheets Quirk"
         }
       }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Fecha a brecha que o primeiro teste expos: com onError continueRegularOutput,\n// um no que falha devolve { error } e o n8n ainda marca a execucao como\n// \"Succeeded\". Os dois e-mails morreram por credencial vencida e a lista de\n// execucoes mostrou verde. Quem so olhasse ali concluiria que estava tudo bem.\n//\n// A blindagem continua, porque e ela que impede o efeito cascata: e-mail\n// quebrado nao pode impedir a gravacao do lead nem o outro envio. O que muda e\n// que a falha agora aparece. Este no roda por ultimo, le o resultado dos tres\n// destinos e derruba a execucao se algum tiver erro.\nconst DESTINOS = [\n  'Registrar na planilha',\n  'E-mail interno (comercial)',\n  'E-mail para o lead'\n];\n\nconst falhas = [];\nfor (const nome of DESTINOS) {\n  let itens;\n  try {\n    itens = $(nome).all();\n  } catch (e) {\n    // No que nao chegou a rodar e falha tambem: o lead nao chegou ao destino.\n    falhas.push(`${nome}: nao executou`);\n    continue;\n  }\n  for (const item of itens) {\n    const erro = item.json && item.json.error;\n    if (erro) falhas.push(`${nome}: ${typeof erro === 'string' ? erro : JSON.stringify(erro)}`);\n  }\n}\n\nif (falhas.length) {\n  throw new Error(\n    'Lead recebido, mas ' + falhas.length + ' destino(s) falharam: ' + falhas.join(' | ')\n  );\n}\n\nreturn $input.all();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        520
+      ],
+      "id": "conferir-envios",
+      "name": "Conferir envios"
     }
   ],
   "connections": {
@@ -173,6 +187,11 @@
       "main": [
         [
           {
+            "node": "Registrar na planilha",
+            "type": "main",
+            "index": 0
+          },
+          {
             "node": "E-mail interno (comercial)",
             "type": "main",
             "index": 0
@@ -181,9 +200,15 @@
             "node": "E-mail para o lead",
             "type": "main",
             "index": 0
-          },
+          }
+        ]
+      ]
+    },
+    "E-mail para o lead": {
+      "main": [
+        [
           {
-            "node": "Registrar na planilha",
+            "node": "Conferir envios",
             "type": "main",
             "index": 0
           }

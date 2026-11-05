@@ -152,10 +152,26 @@ no CTA e sai da página logo depois do resultado.
 ```
 Webhook (POST /webhook/calculadora-clinics)
    └─ Preparar lead (Code)
+        ├─ Registrar na planilha          <- primeiro, de propósito
         ├─ E-mail interno (comercial)
-        ├─ E-mail para o lead
-        └─ Registrar na planilha
+        └─ E-mail para o lead
+             └─ Conferir envios (Code)    <- o único que falha alto
 ```
+
+**A planilha vem primeiro porque é a persistência.** Com o lead gravado,
+o que falhar depois não apaga o lead.
+
+**`Conferir envios` existe porque a blindagem mente.** Com
+`onError: continueRegularOutput`, um nó que falha devolve `{ error }` e
+o n8n ainda marca a execução como *Succeeded*. Num teste real os dois
+e-mails morreram por credencial vencida e a lista de execuções mostrou
+**verde** — quem olhasse só ali concluiria que estava tudo certo.
+
+A blindagem fica, porque é ela que impede o efeito cascata: e-mail
+quebrado não pode impedir a gravação do lead nem o outro envio. O que
+muda é que o último nó lê o resultado dos três destinos e **derruba a
+execução** se algum tiver erro. É o único nó do fluxo sem tratamento de
+erro, e isso é proposital.
 
 **Depois de importar, três coisas:**
 
@@ -176,13 +192,13 @@ Webhook (POST /webhook/calculadora-clinics)
    Enquanto o 403 durar, o nó mostra "No columns found in Google
    Sheets" e **o mapeamento das colunas não carrega**.
 
-   **Ao recolar `n8n/colar.min.json`, conferir `Índice` e
-   `Diagnóstico`.** Foram as duas únicas colunas que chegaram vazias ao
-   colar, e são justamente as duas com acento no cabeçalho. As outras 24
-   vieram mapeadas. Preencher à mão, em modo Expression:
-   `{{ $json.indice }}` e `{{ $json.diagnostico_titulo }}`. Uma coluna
-   vazia não dá erro: o lead entra na planilha com a célula em branco, e
-   ninguém percebe.
+   **Recolar só funciona com a planilha acessível.** Na primeira vez
+   que colei, o n8n estava com 403 nela e duas colunas chegaram sem
+   mapeamento. Cheguei a atribuir isso ao acento no cabeçalho; estava
+   errado. Com o acesso liberado, a colagem seguinte trouxe as 26
+   colunas, `Índice` e `Diagnóstico` incluídas. Ainda assim vale
+   conferir depois de colar: coluna vazia não dá erro, o lead entra com
+   a célula em branco.
 3. **Ativar o workflow.** Sem isso o webhook responde 404.
 
 **Todo nó que fala com serviço externo tem `onError:
