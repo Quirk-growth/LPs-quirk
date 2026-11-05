@@ -82,14 +82,65 @@
     return nota[0] + dentro * (nota[1] - nota[0]);
   }
 
+  // Peso crescente em direção ao fundo do funil: uma etapa lá embaixo já
+  // consumiu todas as anteriores, então perder ali custa mais caro.
+  var PESOS = {
+    responde:  0.15,
+    engaja:    0.15,
+    agenda:    0.25,
+    comparece: 0.20,
+    fecha:     0.25
+  };
+
+  var FAIXAS_INDICE = [
+    { chave:'critico', rotulo:'Crítico',         min:0  },
+    { chave:'abaixo',  rotulo:'Abaixo da média', min:40 },
+    { chave:'media',   rotulo:'Na média',        min:60 },
+    { chave:'forte',   rotulo:'Forte',           min:75 },
+    { chave:'elite',   rotulo:'Elite',           min:90 }
+  ];
+
+  function indice(notas) {
+    var soma = 0;
+    for (var i = 0; i < ETAPAS.length; i++) {
+      var e = ETAPAS[i];
+      soma += PESOS[e] * (notas[e] || 0);
+    }
+    return soma;
+  }
+
+  function faixaIndice(valor) {
+    var escolhida = FAIXAS_INDICE[0];
+    for (var i = 0; i < FAIXAS_INDICE.length; i++) {
+      if (valor >= FAIXAS_INDICE[i].min) escolhida = FAIXAS_INDICE[i];
+    }
+    return { chave: escolhida.chave, rotulo: escolhida.rotulo };
+  }
+
+  // Menor nota. O `<=` é o que faz o empate cair na etapa mais ao fundo,
+  // porque ETAPAS está em ordem de funil.
+  function gargalo(notas) {
+    var escolhida = ETAPAS[0];
+    var menor = notas[ETAPAS[0]];
+    for (var i = 1; i < ETAPAS.length; i++) {
+      var e = ETAPAS[i];
+      if (notas[e] <= menor) { menor = notas[e]; escolhida = e; }
+    }
+    return escolhida;
+  }
+
   raiz.MotorClinics = {
     CAMPOS: CAMPOS,
     ETAPAS: ETAPAS,
     ORIGEM: ORIGEM,
     FAIXAS: FAIXAS,
+    PESOS: PESOS,
     taxa: taxa,
     faixaEtapa: faixaEtapa,
-    notaEtapa: notaEtapa
+    notaEtapa: notaEtapa,
+    indice: indice,
+    faixaIndice: faixaIndice,
+    gargalo: gargalo
   };
 
 })(typeof window !== 'undefined' ? window : globalThis);
