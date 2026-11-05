@@ -27,6 +27,20 @@ LP. Uma regra dessas gerou semanas de conversão fantasma na LP.
 
 ---
 
+## A tela
+
+**Duas telas, não sete.** Os seis números do funil ficam empilhados numa
+tela só, visíveis sem clicar em nada; a segunda tela pede o contato.
+A primeira versão tinha um número por tela atrás de um hero, e quem
+abria a página não encontrava onde preencher.
+
+**Sem travessão em nenhuma copy** (página e e-mails).
+
+**Erro aponta o campo.** Com seis números juntos, dizer "preencha o
+número de agendamentos" sem destacar o input faz a pessoa procurar.
+
+---
+
 ## As regras que não podem ser quebradas
 
 **Não existe `<form>` nesta página, e nenhum botão é `type="submit"`.**
@@ -130,8 +144,10 @@ no CTA e sai da página logo depois do resultado.
 
 ## O workflow do n8n
 
-`n8n/calculadora-clinics.n8n.json` — importar em n8n → *Import from
-File*. Cinco nós:
+`n8n/calculadora-clinics.n8n.json`. **Já existe no n8n** como
+*Calculadora Clinics | leads* (`/workflow/A1IIYDipGHoBhByw`), salvo e
+**desativado**. O arquivo é a fonte: para recriar, colar o conteúdo de
+`n8n/colar.min.json` no canvas (Cmd+V). Cinco nós:
 
 ```
 Webhook (POST /webhook/calculadora-clinics)
@@ -143,11 +159,14 @@ Webhook (POST /webhook/calculadora-clinics)
 
 **Depois de importar, três coisas:**
 
-1. Trocar as credenciais dos três nós finais (import nunca traz
-   credencial): Gmail nos dois e-mails, Google Sheets na planilha.
+1. Conferir as credenciais dos três nós finais. O n8n casou sozinho
+   "Gmail Quirk" e "Google Sheets account" pelo nome; vale abrir e
+   confirmar.
 2. Criar a aba **`Leads Calculadora Clinics`** na planilha
    `1WmzgFMidtIUMdg_Qg11AXlduPoY_qghrjaiQnlHxnu0`, com os cabeçalhos na
-   ordem do nó (o mapeamento é por nome de coluna).
+   ordem do nó. **Enquanto a aba não existir, o mapeamento de colunas
+   fica vazio** ("No columns found in Google Sheets"): criar a aba
+   primeiro, depois abrir o nó e mapear.
 3. **Ativar o workflow.** Sem isso o webhook responde 404.
 
 **Todo nó que fala com serviço externo tem `onError:

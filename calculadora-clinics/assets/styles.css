@@ -77,6 +77,16 @@ input:focus{outline:none;border-color:var(--qc-blue);box-shadow:0 0 0 3px var(--
 @media (max-width:560px){.dupla{grid-template-columns:1fr}}
 .campo+.campo{margin-top:16px}
 
+/* ===== Os seis números, empilhados numa tela só ===== */
+.funil{margin:4px 0 2px}
+.funil .fc+.fc{margin-top:20px;padding-top:20px;border-top:1px solid var(--qc-line)}
+.funil label{font-size:15px;font-weight:600;color:var(--qc-black);margin-bottom:3px}
+.funil .dica{font-size:12.5px;color:var(--qc-muted);line-height:1.5;margin:0 0 9px}
+.funil input{max-width:190px}
+@media (max-width:560px){.funil input{max-width:100%}}
+
+input.erro-campo{border-color:#B3261E;box-shadow:0 0 0 3px #FDECEA}
+
 .erro{display:none;font-size:13px;color:#B3261E;margin-top:9px}
 .erro.visivel{display:block}
 

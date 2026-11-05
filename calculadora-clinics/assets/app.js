@@ -34,7 +34,7 @@
   function mostrar(i) {
     passos.forEach(function (p, k) { p.classList.toggle('ativo', k === i); });
     atual = i;
-    fill.style.width = Math.round((i / (passos.length - 1)) * 100) + '%';
+    fill.style.width = Math.round(((i + 1) / passos.length) * 100) + '%';
     var campo = passos[i].querySelector('input');
     if (campo) setTimeout(function () { campo.focus(); }, 60);
     passos[i].scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -63,31 +63,38 @@
   // Valida o passo atual. Passos 1..6 são os números do funil; o 7 é o
   // contato. Cada número é checado contra o anterior assim que é
   // digitado, não só no fim — errar na etapa 3 e descobrir na 6 é ruim.
+  // Destaca o input culpado. Com os seis números na mesma tela, dizer
+  // "preencha o número de agendamentos" sem apontar faz a pessoa procurar.
+  function destacar(campo) {
+    document.querySelectorAll('input.erro-campo').forEach(function (el) {
+      el.classList.remove('erro-campo');
+    });
+    if (!campo) return;
+    var el = document.getElementById(campo);
+    if (el) { el.classList.add('erro-campo'); el.focus(); }
+  }
+
   function validarPasso(i) {
     erro(i, '');
+    destacar(null);
 
-    if (i >= 1 && i <= 6) {
-      var campo = M.CAMPOS[i - 1];
-      var valor = num(campo);
-      if (valor === null) { erro(i, 'Preencha este número para continuar.'); return false; }
-      if (i === 1 && valor === 0) { erro(i, 'Sem leads não há funil para diagnosticar.'); return false; }
-
-      // Só reclama de campo JÁ preenchido: os de baixo ainda estão vazios
-      // e `validarFunil` acusaria ausência. Mas se a incoerência aponta
-      // para um campo anterior, a mensagem aparece — antes isso era
-      // engolido e a pessoa seguia com funil impossível até o resultado.
+    if (i === 0) {
       var v = M.validarFunil(coletaFunil());
-      if (!v.ok && M.CAMPOS.indexOf(v.campo) <= i - 1) { erro(i, v.mensagem); return false; }
+      if (!v.ok) { erro(0, v.mensagem); destacar(v.campo); return false; }
+      if (num('leads') === 0) {
+        erro(0, 'Sem leads não há funil para diagnosticar.');
+        destacar('leads'); return false;
+      }
       return true;
     }
 
-    if (i === 7) {
+    if (i === 1) {
       var f = document.getElementById('nome').value.trim();
       var w = document.getElementById('whatsapp').value.replace(/\D/g, '');
       var m = document.getElementById('email').value.trim();
-      if (!f) { erro(i, 'Precisamos do seu nome.'); return false; }
-      if (w.length < 10) { erro(i, 'Confira o WhatsApp — faltam dígitos.'); return false; }
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)) { erro(i, 'Confira o e-mail.'); return false; }
+      if (!f) { erro(i, 'Precisamos do seu nome.'); destacar('nome'); return false; }
+      if (w.length < 10) { erro(i, 'Confira o WhatsApp, faltam dígitos.'); destacar('whatsapp'); return false; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)) { erro(i, 'Confira o e-mail.'); destacar('email'); return false; }
       return true;
     }
 
@@ -155,11 +162,11 @@
       responde:  [pessoas + pl(de, ' que chega', ' que chegam') + ', só ' + para + pl(para, ' responde.', ' respondem.'),
                   'A maior parte do que você paga em anúncio morre antes da primeira conversa. Normalmente é velocidade de resposta e primeira mensagem.'],
       engaja:    ['De cada ' + de + pl(de, ' que responde', ' que respondem') + ', só ' + para + pl(para, ' continua a conversa.', ' continuam a conversa.'),
-                  'O time conversa, mas não prende. É a etapa onde falta qualificação e condução — a pessoa responde e some.'],
+                  'O time conversa, mas não prende. É a etapa onde falta qualificação e condução: a pessoa responde e some.'],
       agenda:    [pessoas + ' interessada' + pl(de, '', 's') + ', só ' + para + pl(para, ' marca consulta.', ' marcam consulta.'),
-                  'Elas queriam. Perguntaram preço, procedimento, horário — e não fecharam a agenda. Falta pedir o agendamento de forma direta.'],
+                  'Elas queriam. Perguntaram preço, procedimento, horário, e não fecharam a agenda. Falta pedir o agendamento de forma direta.'],
       comparece: [pessoas + pl(de, ' que agenda', ' que agendam') + ', só ' + para + pl(para, ' aparece.', ' aparecem.'),
-                  'Parte da sua agenda evapora antes da consulta. Você já pagou o anúncio, já respondeu, já convenceu a marcar — e perde ali. É a etapa mais barata de arrumar da clínica inteira.'],
+                  'Parte da sua agenda evapora antes da consulta. Você já pagou o anúncio, já respondeu, já convenceu a marcar, e perde ali. É a etapa mais barata de arrumar da clínica inteira.'],
       fecha:     [pessoas + pl(de, ' que senta', ' que sentam') + ' na cadeira, só ' + para + pl(para, ' fecha.', ' fecham.'),
                   'A pessoa veio até você e saiu sem comprar. Isso é consulta: diagnóstico, apresentação de proposta e fechamento.']
     };
@@ -224,7 +231,7 @@
     var zeradas = r.etapas.filter(function (e) { return !e.definida; });
     if (zeradas.length) {
       return 'Seu funil para antes ' + NOME_DE[zeradas[0].etapa] +
-             ', então essa parte não foi medida — os cenários usam a média de ' +
+             ', então essa parte não foi medida. Os cenários usam a média de ' +
              'mercado dali para frente. Trate este diagnóstico como estimativa.';
     }
     return 'Com menos de ' + M.VOLUME_MINIMO + ' leads por mês, um paciente a mais ' +
@@ -285,11 +292,11 @@
 
   botao.addEventListener('click', function () {
     if (enviando || enviado) return;
-    if (!validarPasso(7)) return;
+    if (!validarPasso(1)) return;
 
     var funil = coletaFunil();
     var coerente = M.validarFunil(funil);
-    if (!coerente.ok) { erro(7, coerente.mensagem); return; }
+    if (!coerente.ok) { erro(1, coerente.mensagem); return; }
 
     enviando = true;
     botao.disabled = true;
