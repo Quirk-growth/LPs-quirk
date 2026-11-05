@@ -101,7 +101,7 @@
         "sheetName": {
           "__rl": true,
           "mode": "name",
-          "value": "Leads Calculadora Clinics"
+          "value": "Diagnóstico Clinics"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -117,13 +117,13 @@
             "Agendam": "={{ $json.agendam }}",
             "Comparecem": "={{ $json.comparecem }}",
             "Fecham": "={{ $json.fecham }}",
-            "Indice": "={{ $json.indice }}",
+            "Índice": "={{ $json.indice }}",
             "Faixa": "={{ $json.faixa }}",
             "Gargalo": "={{ $json.gargalo_nome }}",
             "Fecha por 100": "={{ $json.fechamentos_por_100 }}",
             "Tier": "={{ $json.tier }}",
             "Estimativa": "={{ $json.estimativa_texto }}",
-            "Diagnostico": "={{ $json.diagnostico_titulo }}",
+            "Diagnóstico": "={{ $json.diagnostico_titulo }}",
             "utm_source": "={{ $json.utm_source }}",
             "utm_medium": "={{ $json.utm_medium }}",
             "utm_campaign": "={{ $json.utm_campaign }}",

@@ -162,11 +162,21 @@ Webhook (POST /webhook/calculadora-clinics)
 1. Conferir as credenciais dos três nós finais. O n8n casou sozinho
    "Gmail Quirk" e "Google Sheets account" pelo nome; vale abrir e
    confirmar.
-2. Criar a aba **`Leads Calculadora Clinics`** na planilha
-   `1WmzgFMidtIUMdg_Qg11AXlduPoY_qghrjaiQnlHxnu0`, com os cabeçalhos na
-   ordem do nó. **Enquanto a aba não existir, o mapeamento de colunas
-   fica vazio** ("No columns found in Google Sheets"): criar a aba
-   primeiro, depois abrir o nó e mapear.
+2. **Dar acesso da planilha à conta Google do n8n.** A aba
+   `Diagnóstico Clinics` já existe na planilha
+   `1WmzgFMidtIUMdg_Qg11AXlduPoY_qghrjaiQnlHxnu0` com as 26 colunas,
+   mas a credencial "Google Sheets account" do n8n devolve **403
+   Forbidden, "The caller does not have permission"** nesse arquivo.
+   A credencial funciona (lista outras planilhas, entre elas uma
+   homônima, `LEADS | QUIRK GROWTH`, que é outro arquivo); ela só não
+   foi compartilhada nesta. Compartilhar como Editor resolve.
+
+   Não trocar a conta da credencial: ela é usada por outros workflows.
+
+   Enquanto o 403 durar, o nó mostra "No columns found in Google
+   Sheets" e **o mapeamento das colunas não carrega**. Depois de liberar
+   o acesso, recolar `n8n/colar.min.json` no canvas: o mapeamento das
+   26 colunas vem junto no arquivo.
 3. **Ativar o workflow.** Sem isso o webhook responde 404.
 
 **Todo nó que fala com serviço externo tem `onError:
