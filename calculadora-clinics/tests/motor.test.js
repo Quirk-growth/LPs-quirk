@@ -1,0 +1,250 @@
+const { test } = require('node:test');
+const assert = require('node:assert');
+const M = require('./carregar-motor.js');
+
+test('taxa devolve percentual', () => {
+  assert.strictEqual(M.taxa(45, 100), 45);
+  assert.strictEqual(M.taxa(20, 45), 44.44444444444444);
+});
+
+test('taxa com denominador zero devolve 0, nunca NaN', () => {
+  assert.strictEqual(M.taxa(5, 0), 0);
+  assert.strictEqual(M.taxa(0, 0), 0);
+});
+
+test('faixaEtapa nos limites exatos', () => {
+  assert.strictEqual(M.faixaEtapa('fecha', 34.9).chave, 'abaixo');
+  assert.strictEqual(M.faixaEtapa('fecha', 35).chave, 'medio');
+  assert.strictEqual(M.faixaEtapa('fecha', 50).chave, 'medio');
+  assert.strictEqual(M.faixaEtapa('fecha', 51).chave, 'bom');
+  assert.strictEqual(M.faixaEtapa('fecha', 66).chave, 'excelente');
+  assert.strictEqual(M.faixaEtapa('comparece', 50).chave, 'medio');
+  assert.strictEqual(M.faixaEtapa('agenda', 40).chave, 'medio');
+});
+
+test('notaEtapa interpola dentro da faixa', () => {
+  assert.strictEqual(M.notaEtapa('agenda', 40), 40);
+  assert.strictEqual(M.notaEtapa('comparece', 50), 40);
+  assert.ok(Math.abs(M.notaEtapa('responde', 45) - 47.5) < 0.01);
+  assert.ok(Math.abs(M.notaEtapa('fecha', 50) - 62.5) < 0.01);
+});
+
+test('notaEtapa nos extremos', () => {
+  assert.strictEqual(M.notaEtapa('responde', 0), 0);
+  assert.strictEqual(M.notaEtapa('responde', 100), 100);
+});
+
+test('indice e a media ponderada', () => {
+  const notas = { responde:47.5, engaja:46.6, agenda:40, comparece:40, fecha:62.5 };
+  assert.ok(Math.abs(M.indice(notas) - 47.72) < 0.05);
+});
+
+test('faixaIndice nos limites', () => {
+  assert.strictEqual(M.faixaIndice(39.9).chave, 'critico');
+  assert.strictEqual(M.faixaIndice(40).chave, 'abaixo');
+  assert.strictEqual(M.faixaIndice(60).chave, 'media');
+  assert.strictEqual(M.faixaIndice(90).chave, 'elite');
+});
+
+test('gargalo e a menor nota', () => {
+  assert.strictEqual(
+    M.gargalo({ responde:80, engaja:70, agenda:30, comparece:60, fecha:75 }),
+    'agenda'
+  );
+});
+
+test('empate escolhe a etapa mais ao fundo', () => {
+  assert.strictEqual(
+    M.gargalo({ responde:40, engaja:40, agenda:40, comparece:40, fecha:70 }),
+    'comparece'
+  );
+  assert.strictEqual(
+    M.gargalo({ responde:50, engaja:50, agenda:50, comparece:50, fecha:50 }),
+    'fecha'
+  );
+});
+
+const EXEMPLO = { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 };
+
+test('diagnostico do funil de exemplo', () => {
+  const r = M.diagnostico(EXEMPLO);
+  assert.ok(Math.abs(r.indice - 47.72) < 0.05);
+  assert.strictEqual(r.faixaIndice.chave, 'abaixo');
+  assert.strictEqual(r.gargalo, 'comparece');
+  assert.strictEqual(r.fechamentosPor100, 2);
+  assert.strictEqual(r.estimativa, false);
+});
+
+test('cenario do gargalo move so a etapa do gargalo', () => {
+  const c = M.diagnostico(EXEMPLO).cenarioGargalo;
+  assert.strictEqual(c.fechamentosPor100, 3);
+  const inalteradas = c.etapas.filter(e => e.antes === e.depois).map(e => e.etapa);
+  assert.deepStrictEqual(inalteradas, ['responde','engaja','agenda']);
+});
+
+test('cenario tudo bom', () => {
+  const c = M.diagnostico(EXEMPLO).cenarioTudoBom;
+  assert.ok(c.fechamentosPor100 >= 12 && c.fechamentosPor100 <= 13);
+});
+
+test('volume abaixo do minimo marca estimativa', () => {
+  const r = M.diagnostico({ leads:15, respondem:8, engajam:5, agendam:3, comparecem:2, fecham:1 });
+  assert.strictEqual(r.estimativa, true);
+});
+
+test('funil zerado nao produz NaN', () => {
+  const r = M.diagnostico({ leads:0, respondem:0, engajam:0, agendam:0, comparecem:0, fecham:0 });
+  assert.ok(Number.isFinite(r.indice));
+  assert.ok(Number.isFinite(r.fechamentosPor100));
+  r.etapas.forEach(e => assert.ok(Number.isFinite(e.taxa) && Number.isFinite(e.nota)));
+});
+
+test('etapa maior que a anterior e rejeitada', () => {
+  const v = M.validarFunil({ leads:100, respondem:45, engajam:20, agendam:120, comparecem:4, fecham:2 });
+  assert.strictEqual(v.ok, false);
+  assert.strictEqual(v.campo, 'agendam');
+});
+
+test('etapa igual a anterior e valida', () => {
+  const v = M.validarFunil({ leads:100, respondem:100, engajam:100, agendam:100, comparecem:100, fecham:100 });
+  assert.strictEqual(v.ok, true);
+});
+
+test('funil coerente passa', () => {
+  assert.strictEqual(M.validarFunil(EXEMPLO).ok, true);
+});
+
+test('payload normaliza contato e carrega o diagnostico', () => {
+  const p = M.montarPayload(
+    EXEMPLO,
+    { nome:'Ana Paula Souza', email:'  ANA@Clinica.com.BR ', whatsapp:'(11) 94444-3333', instagram:'@@clinicaana' },
+    M.diagnostico(EXEMPLO)
+  );
+  assert.strictEqual(p.email, 'ana@clinica.com.br');
+  assert.strictEqual(p.whatsapp, '5511944443333');
+  assert.strictEqual(p.instagram, '@clinicaana');
+  assert.strictEqual(p.first_name, 'ana');
+  assert.strictEqual(p.last_name, 'paula souza');
+  assert.strictEqual(p.origem, 'Calculadora Clinics');
+  assert.strictEqual(p.gargalo, 'comparece');
+  assert.strictEqual(p.leads, 100);
+  assert.strictEqual(p.fechamentos_por_100, 2);
+  assert.strictEqual(p.estimativa, false);
+  assert.ok(/^lead_\d+_/.test(p.event_id));
+});
+
+/* ===== Achados da revisão final ===== */
+
+// O fixture de 100 leads escondia isto: com leads != 100 a normalização
+// deixa de ser identidade e as contagens brutas divergem das por-100.
+test('etapas expoem a contagem normalizada por 100 leads', () => {
+  const r = M.diagnostico({ leads:200, respondem:90, engajam:40, agendam:16, comparecem:9, fecham:4 });
+  const porEtapa = Object.fromEntries(r.etapas.map(e => [e.etapa, e.porCem]));
+  assert.strictEqual(porEtapa.responde, 45);
+  assert.strictEqual(porEtapa.engaja, 20);
+  assert.strictEqual(porEtapa.fecha, 2);
+  assert.strictEqual(r.fechamentosPor100, 2);
+});
+
+test('cenario nunca projeta uma etapa para baixo', () => {
+  // Clínica forte: todas as taxas acima do ponto médio de "bom".
+  const forte = { leads:100, respondem:70, engajam:50, agendam:36, comparecem:30, fecham:20 };
+  const r = M.diagnostico(forte);
+  assert.ok(r.cenarioTudoBom.fechamentosPor100 >= r.fechamentosPor100,
+    'tudo-bom nao pode render menos que hoje');
+  assert.ok(r.cenarioGargalo.fechamentosPor100 >= r.fechamentosPor100,
+    'arrumar o gargalo nao pode render menos que hoje');
+  r.cenarioTudoBom.etapas.forEach(d => {
+    assert.ok(d.depois >= d.antes, d.etapa + ' regrediu: ' + d.antes + ' -> ' + d.depois);
+  });
+});
+
+test('etapa sem origem nao pode roubar o gargalo', () => {
+  // 25 engajados e zero agendamentos: o gargalo e agenda. As etapas
+  // seguintes tem nota 0 por INDEFINICAO, nao por desempenho ruim.
+  const r = M.diagnostico({ leads:100, respondem:50, engajam:25, agendam:0, comparecem:0, fecham:0 });
+  assert.strictEqual(r.gargalo, 'agenda');
+});
+
+test('telefone com DDD 55 mantem o codigo do pais', () => {
+  const p = M.montarPayload(EXEMPLO, { nome:'X Y', email:'a@b.c', whatsapp:'(55) 99999-8888', instagram:'' }, M.diagnostico(EXEMPLO));
+  assert.strictEqual(p.whatsapp, '5555999998888');
+});
+
+test('telefone comum continua ganhando o 55', () => {
+  const p = M.montarPayload(EXEMPLO, { nome:'X Y', email:'a@b.c', whatsapp:'(11) 94444-3333', instagram:'' }, M.diagnostico(EXEMPLO));
+  assert.strictEqual(p.whatsapp, '5511944443333');
+});
+
+test('validarFunil recusa numero ausente', () => {
+  assert.strictEqual(M.validarFunil({}).ok, false);
+  assert.strictEqual(M.validarFunil({ leads:100, respondem:45, engajam:null, agendam:8, comparecem:4, fecham:2 }).ok, false);
+});
+
+// Uma etapa sem origem (0 de 0) não tem taxa medida — tratá-la como 0%
+// fazia o cenário "arruma só o gargalo" render 0 pacientes e o selo dizer
+// "sem ganho aqui" justamente para a clínica que mais precisa do pitch.
+// A única suposição não arbitrária para projetar adiante é a média de
+// mercado, e o resultado sai marcado como estimativa.
+test('cenário projeta etapa não medida pela média de mercado', () => {
+  const r = M.diagnostico({ leads:100, respondem:50, engajam:25, agendam:0, comparecem:0, fecham:0 });
+  assert.ok(r.cenarioGargalo.fechamentosPor100 > 0,
+    'arrumar o agendamento tem de render paciente, não zero');
+  assert.strictEqual(r.estimativa, true,
+    'diagnóstico com etapa não medida é estimativa');
+});
+
+test('funil todo medido e com volume não é estimativa', () => {
+  const r = M.diagnostico({ leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 });
+  assert.strictEqual(r.estimativa, false);
+});
+
+// A calculadora vai viver numa URL própria, trackeada separado da LP. Sem
+// UTM no payload o lead chega no hub sem atribuição e ninguém sabe qual
+// anúncio pagou por ele.
+test('payload carrega UTM e fbclid da query string', () => {
+  const r = M.diagnostico({ leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 });
+  const p = M.montarPayload(
+    { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 },
+    { nome:'Ana', email:'a@b.com', whatsapp:'(11) 94444-3333', instagram:'' },
+    r,
+    '?utm_source=facebook&utm_medium=paid&utm_campaign=clinics-calc&utm_content=video1&utm_term=dentista&fbclid=ABC123'
+  );
+  assert.strictEqual(p.utm_source, 'facebook');
+  assert.strictEqual(p.utm_medium, 'paid');
+  assert.strictEqual(p.utm_campaign, 'clinics-calc');
+  assert.strictEqual(p.utm_content, 'video1');
+  assert.strictEqual(p.utm_term, 'dentista');
+  assert.strictEqual(p.fbclid, 'ABC123');
+});
+
+test('payload sem query string traz UTM vazio, nunca undefined', () => {
+  const r = M.diagnostico({ leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 });
+  const p = M.montarPayload(
+    { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 },
+    { nome:'Ana', email:'a@b.com', whatsapp:'(11) 94444-3333', instagram:'' }, r, '');
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid'].forEach(function (k) {
+    assert.strictEqual(p[k], '', k + ' deve ser string vazia');
+  });
+});
+
+// Mercado de clínica é cheio de "Dra Ana Paula". Sem tirar o título, o
+// first_name vira "dra" — o e-mail cumprimenta "Olá dra" e o advanced
+// matching do Meta tenta casar um lead chamado "dra".
+test('título de tratamento não entra no first_name', () => {
+  const funil = { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 };
+  const r = M.diagnostico(funil);
+  const casos = [
+    ['Dra Ana Paula Souza', 'ana', 'paula souza'],
+    ['Dr. Carlos Mendes',   'carlos', 'mendes'],
+    ['Doutora Beatriz',     'beatriz', ''],
+    ['Ana Paula Souza',     'ana', 'paula souza'],
+    ['Drago Silva',         'drago', 'silva']   // começa com "dra", não é título
+  ];
+  for (const [entrada, primeiro, ultimo] of casos) {
+    const p = M.montarPayload(funil, { nome: entrada, email:'a@b.com', whatsapp:'11944443333', instagram:'' }, r, '');
+    assert.strictEqual(p.first_name, primeiro, entrada + ' -> first_name');
+    assert.strictEqual(p.last_name, ultimo, entrada + ' -> last_name');
+    assert.strictEqual(p.nome, entrada, 'o nome cheio é preservado como a pessoa escreveu');
+  }
+});

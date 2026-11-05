@@ -1,5 +1,8 @@
+
+# pacotes de deploy gerados a partir das pastas
+*.log
+*.zip
 .DS_Store
-node_modules/
 .env
 .env.*
-*.log
+node_modules/
