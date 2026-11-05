@@ -172,6 +172,29 @@
     };
   }
 
+  var ROTULO_CAMPO = {
+    leads: 'leads', respondem: 'respostas', engajam: 'engajamentos',
+    agendam: 'agendamentos', comparecem: 'comparecimentos', fecham: 'fechamentos'
+  };
+
+  // Fala em CAMPOS, não em ETAPAS: devolve o input que a pessoa errou.
+  // Sem isto, um funil com mais agendamentos que leads produz diagnóstico
+  // sem sentido e envenena o lead no comercial.
+  function validarFunil(entrada) {
+    for (var i = 1; i < CAMPOS.length; i++) {
+      var atual = entrada[CAMPOS[i]], anterior = entrada[CAMPOS[i - 1]];
+      if (atual > anterior) {
+        return {
+          ok: false,
+          campo: CAMPOS[i],
+          mensagem: 'Não dá para ter mais ' + ROTULO_CAMPO[CAMPOS[i]] +
+                    ' do que ' + ROTULO_CAMPO[CAMPOS[i - 1]] + '. Confira o número.'
+        };
+      }
+    }
+    return { ok: true };
+  }
+
   function diagnostico(entrada) {
     var taxas = {}, notas = {}, contagens = {}, detalhe = [];
     var leads = entrada.leads || 0;
@@ -203,7 +226,44 @@
     };
   }
 
+  // Payload plano. O cenário do Make é quem monta o respostas[] do CRM.
+  // Normaliza aqui para o advanced matching do Meta: minúsculas, e
+  // telefone só dígitos com 55 na frente.
+  function montarPayload(funil, contato, resultado) {
+    var nomeCompleto = String(contato.nome || '').trim();
+    var partes = nomeCompleto.split(/\s+/);
+    var tel = String(contato.whatsapp || '').replace(/\D/g, '');
+    if (tel && !/^55/.test(tel)) tel = '55' + tel;
+    var ig = String(contato.instagram || '').trim().replace(/^@+/, '');
+
+    var p = {
+      nome: nomeCompleto,
+      email: String(contato.email || '').trim().toLowerCase(),
+      whatsapp: tel,
+      instagram: ig ? '@' + ig : '',
+      first_name: (partes[0] || '').toLowerCase(),
+      last_name: (partes.slice(1).join(' ') || '').toLowerCase(),
+
+      indice: Math.round(resultado.indice),
+      faixa: resultado.faixaIndice.rotulo,
+      gargalo: resultado.gargalo,
+      fechamentos_por_100: resultado.fechamentosPor100,
+      estimativa: resultado.estimativa,
+
+      origem: 'Calculadora Clinics',
+      url: (typeof location !== 'undefined') ? location.href : '',
+      enviado_em: new Date().toISOString(),
+      event_id: 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11),
+      event_name: 'Lead'
+    };
+    p.event_source_url = p.url;
+
+    for (var i = 0; i < CAMPOS.length; i++) p[CAMPOS[i]] = funil[CAMPOS[i]];
+    return p;
+  }
+
   raiz.MotorClinics = {
+    montarPayload: montarPayload,
     CAMPOS: CAMPOS,
     ETAPAS: ETAPAS,
     ORIGEM: ORIGEM,
@@ -211,6 +271,7 @@
     PESOS: PESOS,
     VOLUME_MINIMO: VOLUME_MINIMO,
     alvoBom: alvoBom,
+    validarFunil: validarFunil,
     diagnostico: diagnostico,
     taxa: taxa,
     faixaEtapa: faixaEtapa,

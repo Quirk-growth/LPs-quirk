@@ -98,3 +98,37 @@ test('funil zerado nao produz NaN', () => {
   assert.ok(Number.isFinite(r.fechamentosPor100));
   r.etapas.forEach(e => assert.ok(Number.isFinite(e.taxa) && Number.isFinite(e.nota)));
 });
+
+test('etapa maior que a anterior e rejeitada', () => {
+  const v = M.validarFunil({ leads:100, respondem:45, engajam:20, agendam:120, comparecem:4, fecham:2 });
+  assert.strictEqual(v.ok, false);
+  assert.strictEqual(v.campo, 'agendam');
+});
+
+test('etapa igual a anterior e valida', () => {
+  const v = M.validarFunil({ leads:100, respondem:100, engajam:100, agendam:100, comparecem:100, fecham:100 });
+  assert.strictEqual(v.ok, true);
+});
+
+test('funil coerente passa', () => {
+  assert.strictEqual(M.validarFunil(EXEMPLO).ok, true);
+});
+
+test('payload normaliza contato e carrega o diagnostico', () => {
+  const p = M.montarPayload(
+    EXEMPLO,
+    { nome:'Ana Paula Souza', email:'  ANA@Clinica.com.BR ', whatsapp:'(11) 94444-3333', instagram:'@@clinicaana' },
+    M.diagnostico(EXEMPLO)
+  );
+  assert.strictEqual(p.email, 'ana@clinica.com.br');
+  assert.strictEqual(p.whatsapp, '5511944443333');
+  assert.strictEqual(p.instagram, '@clinicaana');
+  assert.strictEqual(p.first_name, 'ana');
+  assert.strictEqual(p.last_name, 'paula souza');
+  assert.strictEqual(p.origem, 'Calculadora Clinics');
+  assert.strictEqual(p.gargalo, 'comparece');
+  assert.strictEqual(p.leads, 100);
+  assert.strictEqual(p.fechamentos_por_100, 2);
+  assert.strictEqual(p.estimativa, false);
+  assert.ok(/^lead_\d+_/.test(p.event_id));
+});

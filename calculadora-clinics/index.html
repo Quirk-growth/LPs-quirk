@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8">
+
+<link rel="preconnect" href="https://www.facebook.com">
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
+<link rel="dns-prefetch" href="https://connect.facebook.net">
+
+<!-- ===================================================================
+     META PIXEL — em duas partes, de propósito. Mesma arquitetura da LP
+     da Clinics v7.10, que foi depurada a duras penas.
+
+     PARTE 1 (aqui): beacon de imagem, ~0 byte. Registra o PageView
+     imediatamente, sem baixar biblioteca nenhuma. É o que o Meta conta
+     como Landing Page View e decide o connect rate.
+
+     PARTE 2 (bloco adiado abaixo): fbevents.js, que grava o cookie _fbp
+     e sustenta o evento de Lead.
+     =================================================================== -->
+<script>
+(function(){
+  var i = new Image(1,1);
+  i.referrerPolicy = 'no-referrer-when-downgrade';
+  i.src = 'https://www.facebook.com/tr?id=1669763490913089&ev=PageView&noscript=1'
+        + '&dl=' + encodeURIComponent(location.href)
+        + '&rl=' + encodeURIComponent(document.referrer || '')
+        + '&ts=' + Date.now();
+})();
+
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[]}(window,document,'script');
+
+// OBRIGATÓRIO, e antes do init. Sem isto o Pixel baixa uma config de
+// ~135 KB e passa a INFERIR eventos a partir de cliques em botão —
+// conversões fantasma. Já aconteceu na LP.
+fbq('set', 'autoConfig', false, '1669763490913089');
+fbq('init','1669763490913089');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1669763490913089&ev=PageView&noscript=1" alt=""></noscript>
+
+<!-- ===================================================================
+     GTM e fbevents — carregados DEPOIS, de propósito.
+     O gtm.js tem 539 KB descomprimidos. Nada que ele faz aqui é
+     sensível a tempo: o PageView já saiu acima.
+     =================================================================== -->
+<script>
+window.dataLayer = window.dataLayer || [];
+(function(w,d,s,l,i){
+  var carregado = false;
+  function carregaRastreamento(){
+    if (carregado) return;
+    carregado = true;
+    var f = d.getElementsByTagName(s)[0];
+    var fb = d.createElement(s);
+    fb.async = true;
+    fb.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    f.parentNode.insertBefore(fb, f);
+    w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+    var j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+    j.async = true;
+    j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+    f.parentNode.insertBefore(j, f);
+  }
+  ['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){
+    w.addEventListener(ev, carregaRastreamento, {once:true, passive:true});
+  });
+  w.addEventListener('load', function(){
+    if ('requestIdleCallback' in w) w.requestIdleCallback(carregaRastreamento, {timeout:2500});
+    else setTimeout(carregaRastreamento, 1200);
+  });
+})(window, document, 'script', 'dataLayer', 'GTM-TGBQHFJ9');
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Calculadora de conversão — Quirk Clinics</title>
+<meta name="description" content="Descubra em qual etapa sua clínica perde paciente. Informe seis números do seu funil e receba o diagnóstico.">
+<link rel="canonical" href="https://clinics.quirkgrowth.com.br/calculadora/">
+<link rel="icon" href="assets/img/logo-quirk.webp" type="image/webp">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://clinics.quirkgrowth.com.br/calculadora/">
+<meta property="og:title" content="Calculadora de conversão — Quirk Clinics">
+<meta property="og:description" content="Descubra em qual etapa sua clínica perde paciente.">
+<link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<!-- CSS embutido para eliminar um round trip. NÃO edite aqui: a fonte é
+     assets/styles.css. Depois de editar, rode `python3 build.py`. -->
+<style id="app-css">
+/* ===== Fontes self-hosted (variáveis) ===== */
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;
+  src:url('assets/fonts/inter-var-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;
+  src:url('assets/fonts/inter-var-latin-ext.woff2') format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+@font-face{font-family:'Sora';font-style:normal;font-weight:100 800;font-display:swap;
+  src:url('assets/fonts/sora-var-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+@font-face{font-family:'Sora';font-style:normal;font-weight:100 800;font-display:swap;
+  src:url('assets/fonts/sora-var-latin-ext.woff2') format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;}
+
+:root{
+  --qc-blue:#4A8FE8;
+  --qc-blue-deep:#2F6FC4;
+  --qc-blue-soft:#E8F1FE;
+  --qc-black:#0A0A0A;
+  --qc-text:#1F2430;
+  --qc-muted:#5C6373;
+  --qc-line:#E4E8EF;
+  --qc-bg:#FFFFFF;
+  --qc-bg-alt:#F5F7FB;
+  --radius:14px;
+  /* rampa sequencial das faixas: claro = abaixo, escuro = excelente */
+  --f-abaixo:#E6F1FB;
+  --f-medio:#B5D4F4;
+  --f-bom:#378ADD;
+  --f-excelente:#185FA5;
+  --f-tinta-clara:#0C447C;
+  --f-tinta-escura:#FFFFFF;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;max-width:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--qc-text);
+  background:var(--qc-bg-alt);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.55;
+}
+img{max-width:100%;height:auto;display:block}
+h1,h2,h3{font-family:'Inter',sans-serif;letter-spacing:-.02em;color:var(--qc-black);line-height:1.15;margin:0}
+button{font:inherit}
+
+.wrap{width:100%;max-width:720px;margin:0 auto;padding:0 20px}
+
+/* ===== Header ===== */
+header.topo{padding:22px 0}
+.qc-logo{display:inline-flex;align-items:center;gap:11px;text-decoration:none}
+.qc-logo img{width:34px;height:34px;flex-shrink:0}
+.qc-logo .wm{font-family:'Sora','Inter',sans-serif;font-weight:300;font-size:20px;letter-spacing:-.01em;color:var(--qc-black);white-space:nowrap;line-height:1}
+.qc-logo .wm strong{font-weight:500}
+.qc-logo .wm .clinics{color:var(--qc-blue-deep)}
+
+/* ===== Progresso ===== */
+.progresso{height:4px;background:var(--qc-line);border-radius:999px;overflow:hidden;margin:0 0 30px}
+.progresso>span{display:block;height:100%;width:0;background:var(--qc-blue);transition:width .35s ease}
+
+/* ===== Cartão e passos ===== */
+.cartao{background:var(--qc-bg);border-radius:var(--radius);padding:30px 28px;margin-bottom:44px}
+.passo{display:none}
+.passo.ativo{display:block}
+.passo .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--qc-blue-deep);font-weight:600;margin:0 0 12px}
+.passo h2{font-size:clamp(22px,3.4vw,30px);font-weight:700;margin-bottom:10px}
+.passo .ajuda{font-size:14px;color:var(--qc-muted);margin:0 0 22px;line-height:1.6}
+
+label{display:block;font-size:13px;font-weight:500;color:var(--qc-text);margin-bottom:7px}
+input{
+  width:100%;padding:13px 15px;font-size:16px;font-family:inherit;color:var(--qc-black);
+  background:var(--qc-bg);border:1px solid var(--qc-line);border-radius:10px;transition:.18s;
+}
+input:focus{outline:none;border-color:var(--qc-blue);box-shadow:0 0 0 3px var(--qc-blue-soft)}
+.dupla{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:560px){.dupla{grid-template-columns:1fr}}
+.campo+.campo{margin-top:16px}
+
+.erro{display:none;font-size:13px;color:#B3261E;margin-top:9px}
+.erro.visivel{display:block}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 26px;font-size:15px;font-weight:600;border:0;border-radius:999px;
+  background:var(--qc-blue);color:#fff;cursor:pointer;transition:.2s;
+}
+.btn:hover{background:var(--qc-blue-deep)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn--vazado{background:transparent;color:var(--qc-text);border:1px solid var(--qc-line)}
+.btn--vazado:hover{background:var(--qc-bg-alt);color:var(--qc-black)}
+.acoes{display:flex;align-items:center;gap:12px;margin-top:26px}
+
+/* ===== Hero ===== */
+.hero h1{font-size:clamp(30px,5vw,46px);font-weight:700;margin-bottom:16px}
+.hero h1 .accent{color:var(--qc-blue)}
+.hero p{font-size:17px;color:var(--qc-muted);margin:0 0 26px;max-width:46ch}
+
+/* ===== Resultado ===== */
+.resultado{display:none}
+.resultado.ativo{display:block}
+.bloco{background:var(--qc-bg);border-radius:var(--radius);padding:26px 24px;margin-bottom:14px}
+.bloco .rotulo{font-size:12px;color:var(--qc-muted);margin:0 0 12px}
+.heroi{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.heroi .n{font-size:54px;line-height:1;font-weight:700;color:var(--qc-black)}
+.heroi .de{font-size:15px;color:var(--qc-muted)}
+.pill{font-size:12px;padding:5px 13px;border-radius:999px;white-space:nowrap}
+.heroi .pill{margin-left:auto}
+.frase{font-size:15px;color:var(--qc-text);margin:16px 0 0;line-height:1.6}
+
+.trilha{display:flex;gap:2px;height:7px;margin-top:16px}
+.trilha>i{display:block;border-radius:3px}
+
+.aviso{background:var(--qc-blue-soft);border-radius:10px;padding:13px 15px;font-size:13px;color:var(--qc-blue-deep);margin-top:16px;line-height:1.55}
+
+.linha{display:flex;align-items:center;gap:10px;padding:5px 0}
+.linha.gargalo{background:#F8FAFE;border-radius:8px;padding:6px 8px;margin:0 -8px}
+.linha .nome{flex:0 0 104px;font-size:13px}
+.linha .qtd{flex:0 0 34px;text-align:right;font-size:14px;color:var(--qc-black);font-weight:500}
+.linha .barra{flex:1;height:20px;background:#EEF2F8;border-radius:5px;overflow:hidden}
+.linha .barra>i{display:block;height:100%}
+.linha .tx{flex:0 0 42px;text-align:right;font-size:12px;color:var(--qc-muted)}
+.linha .fx{flex:0 0 104px;text-align:right}
+@media (max-width:560px){
+  .linha .tx,.linha .fx{display:none}
+  .linha .nome{flex:0 0 92px}
+}
+
+.diag{border-left:3px solid var(--qc-blue);border-radius:0 var(--radius) var(--radius) 0}
+.diag .titulo{font-size:19px;line-height:1.4;color:var(--qc-black);margin:0 0 10px;font-weight:500}
+.diag p{margin:0;font-size:14px;color:var(--qc-text);line-height:1.65}
+
+.cen{margin-top:4px}
+.cen+.cen{margin-top:22px;padding-top:22px;border-top:1px solid var(--qc-line)}
+.cen h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.cen .sub{font-size:13px;color:var(--qc-muted);margin:0 0 16px}
+.cen .total{display:flex;align-items:baseline;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--qc-line)}
+.cen .total .n{font-size:34px;line-height:1;font-weight:700;color:var(--qc-black)}
+.cen .total .t{font-size:13px;color:var(--qc-muted)}
+.cen .total .pill{margin-left:auto}
+.delta{display:flex;align-items:center;gap:9px;padding:4px 0;font-size:13px}
+.delta .nome{flex:0 0 104px}
+.delta .a{flex:0 0 28px;text-align:right;color:#8B94A3}
+.delta .seta{color:#B9C2D0}
+.delta .b{flex:0 0 30px;font-size:15px;color:var(--qc-black);font-weight:500}
+.delta .barra{flex:1;height:16px;background:#EEF2F8;border-radius:4px;overflow:hidden}
+.delta .barra>i{display:block;height:100%}
+
+footer.rodape{padding:30px 0 56px;font-size:12px;color:var(--qc-muted);text-align:center}
+</style><!-- /app-css -->
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TGBQHFJ9"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="wrap">
+
+  <header class="topo">
+    <a href="https://clinics.quirkgrowth.com.br/" class="qc-logo" aria-label="Quirk Clinics">
+      <img src="assets/img/logo-quirk.webp" alt="" width="272" height="272">
+      <span class="wm"><strong>Quirk</strong><span class="clinics">Clinics</span></span>
+    </a>
+  </header>
+
+  <div class="progresso" aria-hidden="true"><span id="progresso-fill"></span></div>
+
+  <div class="cartao" id="cartao">
+
+    <section class="passo ativo hero" data-passo="0">
+      <h1>Descubra em qual etapa sua clínica <span class="accent">perde paciente</span>.</h1>
+      <p>Seis números do seu funil. Em dois minutos você vê onde o dinheiro está vazando — e quanto muda se você arrumar.</p>
+      <div class="acoes"><button type="button" class="btn" data-avancar>Começar<span aria-hidden="true">→</span></button></div>
+    </section>
+
+    <section class="passo" data-passo="1">
+      <p class="eyebrow">Etapa 1 de 6</p>
+      <h2>Quantos leads você recebe por mês?</h2>
+      <p class="ajuda">Todo mundo que preencheu formulário, chamou no direct ou no WhatsApp vindo de anúncio. Conte o total, mesmo quem nunca respondeu depois.</p>
+      <div class="campo"><label for="leads">Leads por mês</label><input type="number" id="leads" inputmode="numeric" min="0" step="1" placeholder="Ex: 200"></div>
+      <p class="erro" data-erro="1"></p>
+      <div class="acoes"><button type="button" class="btn" data-avancar>Continuar</button><button type="button" class="btn btn--vazado" data-voltar>Voltar</button></div>
+    </section>
+
+    <section class="passo" data-passo="2">
+      <p class="eyebrow">Etapa 2 de 6</p>
+      <h2>Desses, quantos respondem?</h2>
+      <p class="ajuda">Quem deu qualquer sinal de vida depois do primeiro contato do seu time — nem que tenha sido um "oi".</p>
+      <div class="campo"><label for="respondem">Respondem</label><input type="number" id="respondem" inputmode="numeric" min="0" step="1" placeholder="Ex: 90"></div>
+      <p class="erro" data-erro="2"></p>
+      <div class="acoes"><button type="button" class="btn" data-avancar>Continuar</button><button type="button" class="btn btn--vazado" data-voltar>Voltar</button></div>
+    </section>
+
+    <section class="passo" data-passo="3">
+      <p class="eyebrow">Etapa 3 de 6</p>
+      <h2>Quantos engajam de verdade?</h2>
+      <p class="ajuda">Se você não anota isso, chute quantos passaram do "olá" para uma conversa de verdade — perguntaram preço, procedimento, disponibilidade.</p>
+      <div class="campo"><label for="engajam">Engajam</label><input type="number" id="engajam" inputmode="numeric" min="0" step="1" placeholder="Ex: 40"></div>
+      <p class="erro" data-erro="3"></p>
+      <div class="acoes"><button type="button" class="btn" data-avancar>Continuar</button><button type="button" class="btn btn--vazado" data-voltar>Voltar</button></div>
+    </section>
+
+    <section class="passo" data-passo="4">
+      <p class="eyebrow">Etapa 4 de 6</p>
+      <h2>Quantos agendam consulta?</h2>
+      <p class="ajuda">Horário marcado na agenda, mesmo que a pessoa não tenha confirmado depois.</p>
+      <div class="campo"><label for="agendam">Agendam</label><input type="number" id="agendam" inputmode="numeric" min="0" step="1" placeholder="Ex: 16"></div>
+      <p class="erro" data-erro="4"></p>
+      <div class="acoes"><button type="button" class="btn" data-avancar>Continuar</button><button type="button" class="btn btn--vazado" data-voltar>Voltar</button></div>
+    </section>
+
+    <section class="passo" data-passo="5">
+      <p class="eyebrow">Etapa 5 de 6</p>
+      <h2>Quantos realmente aparecem?</h2>
+      <p class="ajuda">Dos que agendaram, quantos sentam na cadeira. Se você nunca mediu, pense nos buracos da agenda da semana passada.</p>
+      <div class="campo"><label for="comparecem">Comparecem</label><input type="number" id="comparecem" inputmode="numeric" min="0" step="1" placeholder="Ex: 9"></div>
+      <p class="erro" data-erro="5"></p>
+      <div class="acoes"><button type="button" class="btn" data-avancar>Continuar</button><button type="button" class="btn btn--vazado" data-voltar>Voltar</button></div>
+    </section>
+
+    <section class="passo" data-passo="6">
+      <p class="eyebrow">Etapa 6 de 6</p>
+      <h2>Quantos fecham tratamento?</h2>
+      <p class="ajuda">Viraram paciente de verdade: assinaram, pagaram, começaram.</p>
+      <div class="campo"><label for="fecham">Fecham</label><input type="number" id="fecham" inputmode="numeric" min="0" step="1" placeholder="Ex: 4"></div>
+      <p class="erro" data-erro="6"></p>
+      <div class="acoes"><button type="button" class="btn" data-avancar>Continuar</button><button type="button" class="btn btn--vazado" data-voltar>Voltar</button></div>
+    </section>
+
+    <section class="passo" data-passo="7">
+      <p class="eyebrow">Último passo</p>
+      <h2>Para onde enviamos seu diagnóstico?</h2>
+      <p class="ajuda">Você vê o resultado na tela agora. Mandamos uma cópia para você guardar.</p>
+      <div class="campo"><label for="nome">Nome completo</label><input type="text" id="nome" placeholder="Seu nome"></div>
+      <div class="campo dupla">
+        <div><label for="whatsapp">WhatsApp</label><input type="tel" id="whatsapp" placeholder="(00) 00000-0000"></div>
+        <div><label for="email">E-mail</label><input type="email" id="email" placeholder="seu melhor e-mail"></div>
+      </div>
+      <div class="campo"><label for="instagram">Instagram da clínica</label><input type="text" id="instagram" placeholder="@suaclinica"></div>
+      <p class="erro" data-erro="7"></p>
+      <div class="acoes"><button type="button" class="btn" id="enviar">Ver meu diagnóstico</button><button type="button" class="btn btn--vazado" data-voltar>Voltar</button></div>
+    </section>
+
+  </div>
+
+  <div class="resultado" id="resultado"></div>
+
+  <footer class="rodape">Quirk Clinics · marketing e processos comerciais para clínicas</footer>
+
+</div>
+
+<script src="assets/motor.js?v=1.0" defer></script>
+<script src="assets/app.js?v=1.1" defer></script>
+</body></html>
