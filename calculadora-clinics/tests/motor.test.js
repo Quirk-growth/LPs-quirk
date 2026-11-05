@@ -63,3 +63,38 @@ test('empate escolhe a etapa mais ao fundo', () => {
     'fecha'
   );
 });
+
+const EXEMPLO = { leads:100, respondem:45, engajam:20, agendam:8, comparecem:4, fecham:2 };
+
+test('diagnostico do funil de exemplo', () => {
+  const r = M.diagnostico(EXEMPLO);
+  assert.ok(Math.abs(r.indice - 47.72) < 0.05);
+  assert.strictEqual(r.faixaIndice.chave, 'abaixo');
+  assert.strictEqual(r.gargalo, 'comparece');
+  assert.strictEqual(r.fechamentosPor100, 2);
+  assert.strictEqual(r.estimativa, false);
+});
+
+test('cenario do gargalo move so a etapa do gargalo', () => {
+  const c = M.diagnostico(EXEMPLO).cenarioGargalo;
+  assert.strictEqual(c.fechamentosPor100, 3);
+  const inalteradas = c.etapas.filter(e => e.antes === e.depois).map(e => e.etapa);
+  assert.deepStrictEqual(inalteradas, ['responde','engaja','agenda']);
+});
+
+test('cenario tudo bom', () => {
+  const c = M.diagnostico(EXEMPLO).cenarioTudoBom;
+  assert.ok(c.fechamentosPor100 >= 12 && c.fechamentosPor100 <= 13);
+});
+
+test('volume abaixo do minimo marca estimativa', () => {
+  const r = M.diagnostico({ leads:15, respondem:8, engajam:5, agendam:3, comparecem:2, fecham:1 });
+  assert.strictEqual(r.estimativa, true);
+});
+
+test('funil zerado nao produz NaN', () => {
+  const r = M.diagnostico({ leads:0, respondem:0, engajam:0, agendam:0, comparecem:0, fecham:0 });
+  assert.ok(Number.isFinite(r.indice));
+  assert.ok(Number.isFinite(r.fechamentosPor100));
+  r.etapas.forEach(e => assert.ok(Number.isFinite(e.taxa) && Number.isFinite(e.nota)));
+});

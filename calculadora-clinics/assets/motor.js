@@ -129,12 +129,89 @@
     return escolhida;
   }
 
+  // Abaixo disto o diagnóstico sai marcado como estimativa. Uma clínica
+  // com 15 leads e 1 fechamento normaliza para 7/100 e devolveria "bom",
+  // o que é ruído, não sinal.
+  var VOLUME_MINIMO = 30;
+
+  // Ponto médio da faixa "bom" da etapa — o alvo que os cenários usam.
+  function alvoBom(etapa) {
+    var faixas = FAIXAS[etapa];
+    for (var i = 0; i < faixas.length; i++) {
+      if (faixas[i].chave === 'bom') {
+        var fim = (i + 1 < faixas.length) ? faixas[i + 1].min : 100;
+        return (faixas[i].min + fim) / 2;
+      }
+    }
+    return 100;
+  }
+
+  // Projeta um funil de 100 leads a partir de um mapa etapa -> taxa.
+  function projetar(taxas) {
+    var atual = 100;
+    var saida = {};
+    for (var i = 0; i < ETAPAS.length; i++) {
+      atual = atual * (taxas[ETAPAS[i]] / 100);
+      saida[ETAPAS[i]] = atual;
+    }
+    return saida;
+  }
+
+  function cenario(taxasBase, etapasAlteradas, contagensHoje) {
+    var taxas = {};
+    for (var i = 0; i < ETAPAS.length; i++) {
+      var e = ETAPAS[i];
+      taxas[e] = etapasAlteradas.indexOf(e) >= 0 ? alvoBom(e) : taxasBase[e];
+    }
+    var proj = projetar(taxas);
+    return {
+      etapas: ETAPAS.map(function (e) {
+        return { etapa: e, antes: Math.round(contagensHoje[e]), depois: Math.round(proj[e]) };
+      }),
+      fechamentosPor100: Math.round(proj.fecha)
+    };
+  }
+
+  function diagnostico(entrada) {
+    var taxas = {}, notas = {}, contagens = {}, detalhe = [];
+    var leads = entrada.leads || 0;
+    var fator = leads > 0 ? 100 / leads : 0;
+
+    for (var i = 0; i < ETAPAS.length; i++) {
+      var e = ETAPAS[i];
+      var de = entrada[ORIGEM[e].de] || 0;
+      var para = entrada[ORIGEM[e].para] || 0;
+      var t = taxa(para, de);
+      taxas[e] = t;
+      notas[e] = notaEtapa(e, t);
+      contagens[e] = para * fator;
+      detalhe.push({ etapa: e, de: de, para: para, taxa: t, nota: notas[e], faixa: faixaEtapa(e, t) });
+    }
+
+    var valorIndice = indice(notas);
+    var pior = gargalo(notas);
+
+    return {
+      indice: valorIndice,
+      faixaIndice: faixaIndice(valorIndice),
+      etapas: detalhe,
+      gargalo: pior,
+      fechamentosPor100: Math.round((entrada.fecham || 0) * fator),
+      estimativa: leads < VOLUME_MINIMO,
+      cenarioGargalo: cenario(taxas, [pior], contagens),
+      cenarioTudoBom: cenario(taxas, ETAPAS.slice(), contagens)
+    };
+  }
+
   raiz.MotorClinics = {
     CAMPOS: CAMPOS,
     ETAPAS: ETAPAS,
     ORIGEM: ORIGEM,
     FAIXAS: FAIXAS,
     PESOS: PESOS,
+    VOLUME_MINIMO: VOLUME_MINIMO,
+    alvoBom: alvoBom,
+    diagnostico: diagnostico,
     taxa: taxa,
     faixaEtapa: faixaEtapa,
     notaEtapa: notaEtapa,

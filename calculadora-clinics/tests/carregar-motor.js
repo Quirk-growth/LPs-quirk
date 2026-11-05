@@ -11,13 +11,15 @@ const vm = require('node:vm');
 const caminho = path.join(__dirname, '..', 'assets', 'motor.js');
 const fonte = fs.readFileSync(caminho, 'utf8');
 
-const contexto = { window: undefined };
-contexto.globalThis = contexto;
-vm.createContext(contexto);
-vm.runInContext(fonte, contexto, { filename: 'motor.js' });
+// runInThisContext, e não createContext: um contexto novo é outro realm,
+// onde Array e Object têm prototypes diferentes dos do processo de teste.
+// Isso faz assert.deepStrictEqual recusar arrays idênticos com
+// "same structure but not reference-equal" — um falso negativo que
+// custa caro pra diagnosticar.
+vm.runInThisContext(fonte, { filename: 'motor.js' });
 
-if (!contexto.MotorClinics) {
+if (!globalThis.MotorClinics) {
   throw new Error('motor.js não publicou MotorClinics no objeto global');
 }
 
-module.exports = contexto.MotorClinics;
+module.exports = globalThis.MotorClinics;
