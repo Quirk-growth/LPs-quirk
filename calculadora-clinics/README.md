@@ -174,9 +174,15 @@ Webhook (POST /webhook/calculadora-clinics)
    Não trocar a conta da credencial: ela é usada por outros workflows.
 
    Enquanto o 403 durar, o nó mostra "No columns found in Google
-   Sheets" e **o mapeamento das colunas não carrega**. Depois de liberar
-   o acesso, recolar `n8n/colar.min.json` no canvas: o mapeamento das
-   26 colunas vem junto no arquivo.
+   Sheets" e **o mapeamento das colunas não carrega**.
+
+   **Ao recolar `n8n/colar.min.json`, conferir `Índice` e
+   `Diagnóstico`.** Foram as duas únicas colunas que chegaram vazias ao
+   colar, e são justamente as duas com acento no cabeçalho. As outras 24
+   vieram mapeadas. Preencher à mão, em modo Expression:
+   `{{ $json.indice }}` e `{{ $json.diagnostico_titulo }}`. Uma coluna
+   vazia não dá erro: o lead entra na planilha com a célula em branco, e
+   ninguém percebe.
 3. **Ativar o workflow.** Sem isso o webhook responde 404.
 
 **Todo nó que fala com serviço externo tem `onError:
